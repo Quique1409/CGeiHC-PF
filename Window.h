@@ -13,30 +13,26 @@ public:
 	GLfloat getBufferHeight() { return bufferHeight; }
 	GLfloat getXChange();
 	GLfloat getYChange();
+	//Movimiento de puertas ENRIQUE
 	GLfloat getmuevex() { return muevex; }
-	//Para la reversa
-	GLfloat getmuevexR() { return muevexR; }
-	//Para helicoptero
-	GLfloat getmueveXHe() { return mueveXHe; }
+	GLfloat getarticulacion1() { return articulacion1; }
 
-	//-----------Práctica 8-------------------
-	//para saber el estado de la luz
-	GLboolean getprendida() { return puertaAbierta; }
-	//UFO
-	GLboolean getprendidaUFO() { return UFOPrendido; }
-	//para el cofre del coche
+	//Movimiento de puertas JOSHUA
 	GLfloat getmuevey() { return muevey; }
 
+	//Abrir o cerrar puertas JOSHUA
+	GLboolean getAbrirCerrarPuerta() { return abrirCerrarPuerta; }
+
 	bool getShouldClose() {
-		return  glfwWindowShouldClose(mainWindow);}
+		return  glfwWindowShouldClose(mainWindow);
+	}
 	bool* getsKeys() { return keys; }
 	void swapBuffers() { return glfwSwapBuffers(mainWindow); }
-	GLfloat getarticulacion1() { return articulacion1; }
+
 	~Window();
-private: 
-	GLFWwindow *mainWindow;
+private:
+	GLFWwindow* mainWindow;
 	GLint width, height;
-	GLfloat articulacion1, articulacion8;
 	bool keys[1024];
 	GLint bufferWidth, bufferHeight;
 	void createCallbacks();
@@ -44,20 +40,13 @@ private:
 	GLfloat lastY;
 	GLfloat xChange;
 	GLfloat yChange;
+	// Movimiento de puertas ENRIQUE
 	GLfloat muevex;
-	//para Helicoptero
-	GLfloat mueveXHe;
-	//Coche faro trasero
-	GLfloat muevexR;
+	GLfloat articulacion1;
 
-
-	//Practica 8
-	//Se declara la variable
-	GLboolean puertaAbierta;
-	GLboolean UFOPrendido;
-	//Cofre del coche
+	// Práctica 9.3. Abrir o cerrar puertas
 	GLfloat muevey;
-
+	GLboolean abrirCerrarPuerta;
 	bool mouseFirstMoved;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
 	static void ManejaMouse(GLFWwindow* window, double xPos, double yPos);

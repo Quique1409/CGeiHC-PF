@@ -13,21 +13,16 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 {
 	width = windowWidth;
 	height = windowHeight;
-	muevex = 2.0f;
-	//Para Helicoptero
-	mueveXHe = 2.0f;
-	//Para el cofre
-	articulacion1 = 0.0f;
-	articulacion8 = 0.0f;
+	muevey = 10.0f;
 
-	//---------Práctica 8---------
-	//inicializar luzprendida
-	puertaAbierta = true;
-	UFOPrendido = true;
-	//Para el cofre
-	muevey = 0.0f;
-	//Para faro trasero
-	muevexR = 2.0f;
+	//Movimientos ENRIQUE
+	muevex = 2.0f;
+
+	// Movimiento de puertas ENRIQUE
+	articulacion1 = 0.0f;
+
+	// Abrir o Cerrar puertas JOSHUA
+	abrirCerrarPuerta = true;
 
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -51,7 +46,7 @@ int Window::Initialise()
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
 	//CREAR VENTANA
-	mainWindow = glfwCreateWindow(width, height, "PracticaXX:Nombre de la practica", NULL, NULL);
+	mainWindow = glfwCreateWindow(width, height, "Proyecto Final", NULL, NULL);
 
 	if (!mainWindow)
 	{
@@ -81,9 +76,9 @@ int Window::Initialise()
 	}
 
 	glEnable(GL_DEPTH_TEST); //HABILITAR BUFFER DE PROFUNDIDAD
-							 // Asignar valores de la ventana y coordenadas
-							 
-							 //Asignar Viewport
+	// Asignar valores de la ventana y coordenadas
+
+	//Asignar Viewport
 	glViewport(0, 0, bufferWidth, bufferHeight);
 	//Callback para detectar que se está usando la ventana
 	glfwSetWindowUserPointer(mainWindow, this);
@@ -119,27 +114,15 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
-	if (key == GLFW_KEY_Y)
+
+	//ABRE CIERRA PUERTAS JOSHUA
+	if (key == GLFW_KEY_F && action == GLFW_PRESS)
 	{
-		theWindow-> muevex += 1.0;
-	}
-	if (key == GLFW_KEY_U)
-	{
-		theWindow-> muevex -= 1.0;
+		theWindow->abrirCerrarPuerta = !theWindow->abrirCerrarPuerta;
 	}
 
-	//Para Helicoptero
-	if (key == GLFW_KEY_H)
-	{
-		theWindow->mueveXHe += 1.0;
-	}
-	if (key == GLFW_KEY_J)
-	{
-		theWindow->mueveXHe -= 1.0;
-	}
-
-	//Para la puerta
-	if (key == GLFW_KEY_F)
+	//Para la puerta ENRIQUE
+	if (key == GLFW_KEY_N)
 	{
 		if (theWindow->articulacion1 < 90.0f)
 		{
@@ -149,23 +132,13 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		}
 
 	}
-	if (key == GLFW_KEY_V)
+	if (key == GLFW_KEY_M)
 	{
 		if (theWindow->articulacion1 > 0.0f)
 		{
 			theWindow->articulacion1 -= 10.0;
 			theWindow->muevex -= 0.2;
 		}
-	}
-	//------Práctica 8---------
-	if (key == GLFW_KEY_P && action == GLFW_PRESS)
-	{
-		theWindow->puertaAbierta = !theWindow->puertaAbierta;
-	}
-	//UFO
-	if (key == GLFW_KEY_N && action == GLFW_PRESS)
-	{
-		theWindow->UFOPrendido = !theWindow->UFOPrendido;
 	}
 
 

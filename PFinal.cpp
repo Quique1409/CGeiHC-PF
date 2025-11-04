@@ -1,8 +1,8 @@
 /*
-Proytecto final para la materia de CGeiHC en laboratorio.
-Semestre: 2026-1
-S.O: Windows 11 Pro | Home
-Alumnos: 320152841 | 320229594
+Animación:
+Simple o básica:Por banderas y condicionales (más de 1 transformación geométrica se ve modificada)
+Compleja: Por medio de funciones y algoritmos.
+Textura Animada
 */
 //para cargar imagen
 #define STB_IMAGE_IMPLEMENTATION
@@ -40,20 +40,24 @@ Alumnos: 320152841 | 320229594
 const float toRadians = 3.14159265f / 180.0f;
 
 //variables para animación
-float toffsetnumerocambiau = 0.0f;
-float toffsetnumerov = 0.0f;
-bool avanza=true;
-
-//Para puerta
+float movCoche;
+//variables para puerta
 float rotacion = 0.0f;
-float desp = 0.f;
-float puertaOffSet;
-float rotDesOffset;
+float deslizamiento = 0.0f;
 
-//Tiempos para el cambio de números
-float tiempAcumulado = 0.0f;
-const float tiempoEspera = 0.5f; // lo que espera cada numéro
-bool mostrarnum1 = true;
+float movOffset;
+float rotdeslizamientoOffset;
+bool avanza = true;
+bool abrePuerta = true;	
+bool cambioTextura = true;
+float rotaDragon = 0.0f;
+float toffsetflechau = 0.0f;
+float toffsetflechav = 0.0f;
+float toffsetnumerou = 0.0f;
+float toffsetnumerov = 0.0f;
+float toffsetnumerocambiau = 0.0;
+float angulovaria = 0.0f;
+float dragonavance = 0.0f;
 
 Window mainWindow;
 std::vector<Mesh*> meshList;
@@ -61,21 +65,41 @@ std::vector<Shader> shaderList;
 
 Camera camera;
 
+Texture brickTexture;
+Texture dirtTexture;
 Texture plainTexture;
 Texture pisoTexture;
+Texture AgaveTexture;
+// Texturas de los backyardigans - PUERTA JOSHUA
+Texture TipografiaBackyardigans;
 
+//Se añade una textura de un camino
+Texture CaminoTexture;
+
+//Letrero PUERTA ENRIQUE
 //Puerta
 Texture PuertaTexture;
-//Letrero
+
 Texture LetreroTexture;
 
-//Puerta
+// Modelos de la puerta Joshua
+Model Arco;
+Model PuertaIzq;
+Model PuertaDer;
+Model CartelPuerta;
+
+// Modelos de puerta Enrique
 Model Cartel_M;
 Model PuertaIzq_M;
 Model PuertaDer_M;
 Model Arco_M;
 
-//Cielo
+
+//Se añaden los modelos separados del dragón (cuerpo, ala izquierda y ala derecha).
+Model DragonCuerpo_M;
+Model DragonAlaIzq_M;
+Model DragonAlaDer_M;
+Model Tiamat_M;
 Skybox skybox;
 
 //materiales
@@ -180,7 +204,7 @@ void CreateObjects()
 
 
 	};
-	
+
 
 	unsigned int flechaIndices[] = {
 	   0, 1, 2,
@@ -202,8 +226,8 @@ void CreateObjects()
 
 	GLfloat scoreVertices[] = {
 		-0.5f, 0.0f, 0.5f,		0.0f, 0.0f,		0.0f, -1.0f, 0.0f,
-		0.5f, 0.0f, 0.5f,		1.0f, 0.0f,		0.0f, -1.0f, 0.0f,
-		0.5f, 0.0f, -0.5f,		1.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, 0.5f,		0.25f, 0.0f,		0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, -0.5f,		0.25f, 1.0f,		0.0f, -1.0f, 0.0f,
 		-0.5f, 0.0f, -0.5f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f,
 
 	};
@@ -214,22 +238,32 @@ void CreateObjects()
 	};
 
 	GLfloat numeroVertices[] = {
-		-0.5f, 0.0f, 0.5f,		0.0f, 0.67f,		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, 0.5f,		0.0f, 0.67f,			0.0f, -1.0f, 0.0f,
 		0.5f, 0.0f, 0.5f,		0.25f, 0.67f,		0.0f, -1.0f, 0.0f,
 		0.5f, 0.0f, -0.5f,		0.25f, 1.0f,		0.0f, -1.0f, 0.0f,
-		-0.5f, 0.0f, -0.5f,		0.0f, 1.0f,		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, -0.5f,		0.0f, 1.0f,			0.0f, -1.0f, 0.0f,
 
 	};
 
-	Mesh *obj1 = new Mesh();
+	GLfloat backyardigansVertices[] = {
+		-0.5f, 0.0f, 0.5f,		0.0f, 0.0f,			0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, 0.5f,		1.0f, 0.0f,			0.0f, -1.0f, 0.0f,
+		0.5f, 0.0f, -0.5f,		1.0f, 1.0f,			0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, -0.5f,		0.0f, 1.0f,			0.0f, -1.0f, 0.0f,
+
+	};
+
+
+
+	Mesh* obj1 = new Mesh();
 	obj1->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj1);
 
-	Mesh *obj2 = new Mesh();
+	Mesh* obj2 = new Mesh();
 	obj2->CreateMesh(vertices, indices, 32, 12);
 	meshList.push_back(obj2);
 
-	Mesh *obj3 = new Mesh();
+	Mesh* obj3 = new Mesh();
 	obj3->CreateMesh(floorVertices, floorIndices, 32, 6);
 	meshList.push_back(obj3);
 
@@ -251,19 +285,17 @@ void CreateObjects()
 	meshList.push_back(obj7); // solo un número
 
 	Mesh* obj8 = new Mesh();
-	obj8->CreateMesh(numeroVertices, numeroIndices, 50, 50);
+	obj8->CreateMesh(backyardigansVertices, numeroIndices, 32, 6);
 	meshList.push_back(obj8); // solo un número
 
 }
 
-
 void CreateShaders()
 {
-	Shader *shader1 = new Shader();
+	Shader* shader1 = new Shader();
 	shader1->CreateFromFiles(vShader, fShader);
 	shaderList.push_back(*shader1);
 }
-
 
 
 
@@ -277,38 +309,64 @@ int main()
 
 	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.5f, 0.5f);
 
-	
+	brickTexture = Texture("Textures/pasto.jpg");
+	brickTexture.LoadTextureA();
+	dirtTexture = Texture("Textures/dirt.png");
+	dirtTexture.LoadTextureA();
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
-	pisoTexture = Texture("Textures/pasto.jpg");
+	pisoTexture = Texture("Textures/PastoJoshua.jpg");
 	pisoTexture.LoadTextureA();
-	
+	AgaveTexture = Texture("Textures/Agave.tga");
+	AgaveTexture.LoadTextureA();
+	TipografiaBackyardigans = Texture("Textures/ProyectoCGEIHC.png");
+	TipografiaBackyardigans.LoadTextureA();
+
+	//letrero ENRIQUE
 	//Puerta
 	PuertaTexture = Texture("Textures/DoorTexture_Color_3.png");
 	PuertaTexture.LoadTextureA();
-	
-	//letrero
+
 	LetreroTexture = Texture("Textures/Letrero.png");
 	LetreroTexture.LoadTextureA();
 
+
+	// Cargando el modelo del camino
+	CaminoTexture = Texture("Textures/camino.jpg");
+	CaminoTexture.LoadTextureA();
+
+
+
+	// Puerta JOSHUA
+	PuertaIzq = Model();
+	PuertaIzq.LoadModel("Models/puertaIzqJoshua.obj");
+	PuertaDer = Model();
+	PuertaDer.LoadModel("Models/puertaDerJoshua.obj");
+	Arco = Model();
+	Arco.LoadModel("Models/arcoJoshua.dae");
+	CartelPuerta = Model();
+	CartelPuerta.LoadModel("Models/letreroJoshua.dae");
+
+	// Puerta Enrique
+
+
 	//Modelo de puerta
 	Cartel_M = Model();
-	Cartel_M.LoadModel("Models/Cartel.dae");
+	Cartel_M.LoadModel("Models/CartelEnrique.dae");
 	Arco_M = Model();
-	Arco_M.LoadModel("Models/Arco.dae");
+	Arco_M.LoadModel("Models/ArcoEnrique.dae");
 	PuertaDer_M = Model();
-	PuertaDer_M.LoadModel("Models/PuertaDer.dae");
+	PuertaDer_M.LoadModel("Models/PuertaDerEnrique.dae");
 	PuertaIzq_M = Model();
-	PuertaIzq_M.LoadModel("Models/PuertaIzq.dae");
-
+	PuertaIzq_M.LoadModel("Models/PuertaIzqEnrique.dae");
 
 	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/pz.jpg");
-	skyboxFaces.push_back("Textures/Skybox/nz.jpg");
-	skyboxFaces.push_back("Textures/Skybox/ny.jpg");
-	skyboxFaces.push_back("Textures/Skybox/py.jpg");
 	skyboxFaces.push_back("Textures/Skybox/nx.jpg");
 	skyboxFaces.push_back("Textures/Skybox/px.jpg");
+	skyboxFaces.push_back("Textures/Skybox/ny.jpg");
+	skyboxFaces.push_back("Textures/Skybox/py.jpg");
+	skyboxFaces.push_back("Textures/Skybox/nz.jpg");
+	skyboxFaces.push_back("Textures/Skybox/pz.jpg");
 
 	skybox = Skybox(skyboxFaces);
 
@@ -318,7 +376,7 @@ int main()
 
 	//luz direccional, sólo 1 y siempre debe de existir
 	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		0.3f, 0.3f,
+		1.0f, 1.0f,
 		0.0f, 0.0f, -1.0f);
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
@@ -339,52 +397,70 @@ int main()
 		5.0f);
 	spotLightCount++;
 
-	//agregar las luces spotlight
+	//luz fija
+	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
+		1.0f, 2.0f,
+		5.0f, 10.0f, 0.0f,
+		0.0f, -5.0f, 0.0f,
+		1.0f, 0.0f, 0.0f,
+		15.0f);
+	spotLightCount++;
 
 
 
 	GLuint uniformProjection = 0, uniformModel = 0, uniformView = 0, uniformEyePosition = 0,
-		uniformSpecularIntensity = 0, uniformShininess = 0, uniformTextureOffset=0;
+		uniformSpecularIntensity = 0, uniformShininess = 0, uniformTextureOffset = 0;
 	GLuint uniformColor = 0;
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
-	
-	//Se pueden agregar más
+
+	movCoche = 0.0f;
+	//Movimientos base para cada transformación de las puertas
+	movOffset = 6.0f;
+	rotdeslizamientoOffset = 0.12f;
+
 	glm::vec3 lowerLight(0.0f, 0.0f, 0.0f);
+
 	glm::mat4 model(1.0);
 	glm::mat4 modelaux(1.0);
 	glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 	glm::vec2 toffset = glm::vec2(0.0f, 0.0f);
-	
+
 	////Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
 		GLfloat now = glfwGetTime();
-		GLfloat deltaTimeAux = now - lastTime;
 		deltaTime = now - lastTime;
 		deltaTime += (now - lastTime) / limitFPS;
 		lastTime = now;
 		//< >
-		
+		angulovaria += 5.0f * deltaTime;
 
-		//logica puerta Quique
-		if (mainWindow.getprendida())
+		//dragonavance
+		dragonavance -= 0.1f * deltaTime;
+		/* Animación en Loop Se ejecuta de forma continua mientras la aplicación está activa
+		Si la animación no es el loop, y se puede iniciar varias veces, el estado final y el estado inicial
+		deben de ser el mismo, o agregar elementos para que no se vea que los modelos desaparecen
+		o aparecen de la nada.
+		*/
+
+		// Animación que se activa al presionar la tecla F, permite abrir o cerrar las puertas.
+		if (mainWindow.getAbrirCerrarPuerta())
 		{
 			if (rotacion > 0.0f)
 			{
-				rotacion -= puertaOffSet * deltaTime;
-				desp -= rotDesOffset * deltaTime;
+				rotacion -= movOffset * deltaTime;
+				deslizamiento -= rotdeslizamientoOffset * deltaTime;
 			}
 		}
+
 		else
 		{
 			if (rotacion < 90.0f)
 			{
-				rotacion += puertaOffSet * deltaTime;
-				desp += rotDesOffset * deltaTime;
+				rotacion += movOffset * deltaTime;
+				deslizamiento += rotdeslizamientoOffset * deltaTime;
 			}
 		}
-
-		
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
@@ -437,62 +513,79 @@ int main()
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		pisoTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[2]->RenderMesh();
 
+		// Instancia del camino
+		model = glm::mat4(1.0);
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -1.95f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 1.0f, 2.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+		CaminoTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
 
 
-
-		//Instancia del coche (Se deja de ejemplo para una jerarquía)
-		/*model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(movCoche - 50.0f, -0.2f, -2.0f));
-		modelaux = model;
-		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Kitt_M.RenderModel();
-
-		//Llanta delantera izquierda
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(7.0f, -0.5f, 8.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, rotllanta * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		color = glm::vec3(0.5f, 0.5f, 0.5f);//llanta con color gris
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Llanta_M.RenderModel();
-
-		//Llanta trasera izquierda
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(15.5f, -0.5f, 8.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, rotllanta * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Llanta_M.RenderModel();
-
-		//Llanta delantera derecha
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(7.0f, -0.5f, 1.5f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, -rotllanta * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Llanta_M.RenderModel();
-
-		//Llanta trasera derecha
-		model = modelaux;
-		model = glm::translate(model, glm::vec3(15.5f, -0.5f, 1.5f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, -rotllanta * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.4f, 0.4f, 0.4f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Llanta_M.RenderModel(); */
-
-
+		//----------------- Puerta JOSHUA --------------------//
 		
 
-		//---------------------------- Puerta ----------------------------------------------
+		//Definición del arco de la puerta
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
+		modelaux = model;
+		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
+		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Arco.RenderModel();
+
+		//Definición del cartel de la puerta
+		model = modelaux;
+		//model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
+		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
+		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CartelPuerta.RenderModel();
+
+		//Definición de la puerta izquierda, ABRE
+		//Jerarquía
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-2.95f, -0.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, rotacion * toRadians, glm::vec3(0.0f, 0.0f, 1.0f)); // ABRE Y CIERRA CON F
+		model = glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PuertaIzq.RenderModel();
+
+		//Definición de la puerta derecha, DESLIZA
+		//Jerarquía
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(3.15f, 0.082f, 0.0f));
+		model = glm::translate(model, glm::vec3(0.0f + deslizamiento, 0.0f, 0.0f));	// ABRE Y CIERRA CON F
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PuertaDer.RenderModel();
+		
+		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
+		//Agave ¿qué sucede si lo renderizan antes del coche y de la pista?
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		//blending: transparencia o traslucidez
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		AgaveTexture.UseTexture();
+		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[3]->RenderMesh();
+
+		//----------------- Puerta ENRIQUE --------------------//
 
 		//Modelo de puerta
 		//Arco
@@ -558,11 +651,9 @@ int main()
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[4]->RenderMesh();
 
-		
-		
-		/* //textura con movimiento
+		//textura con movimiento
 		//Importantes porque la variable uniform no podemos modificarla directamente
-		toffsetflechau += 0.001;
+		/*toffsetflechau += 0.001;
 		toffsetflechav = 0.00;
 		//para que no se desborde la variable
 		if (toffsetflechau > 1.0)
@@ -583,16 +674,48 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		FlechaTexture.UseTexture();
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[4]->RenderMesh(); */
+		meshList[4]->RenderMesh();*/
 
-		
 
-		
+		//Movimiento sobre la textura del texto PROYECTO CGEIHC 
+		/*
+		¿Cómo hacer para que sea a una velocidad visible?
+		*/
+		toffsetnumerocambiau += 0.0005;
+		if (toffsetnumerocambiau > 1.0)
+			toffsetnumerocambiau = 0.0;
+		toffsetnumerov = 0.0;
+
+		toffset = glm::vec2(toffsetnumerocambiau, toffsetnumerov);
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 9.3f, -13.17f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(4.0f, 1.0f, 1.0f));
+		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		color = glm::vec3(1.0f, 1.0f, 1.0f);
+		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+		TipografiaBackyardigans.UseTexture();
+		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
+		meshList[7]->RenderMesh();
+
+
+
 
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[5]->RenderMesh();
-		glDisable(GL_BLEND); //Para el blending
+
+
+
+
+		glDisable(GL_BLEND);
+
+
+
+
+
 		glUseProgram(0);
+
 		mainWindow.swapBuffers();
 	}
 

@@ -59,6 +59,15 @@ float toffsetnumerocambiau = 0.0;
 float angulovaria = 0.0f;
 float dragonavance = 0.0f;
 
+// Variables para ciclo día/noche
+float tiempoDia = 0.0f;          // contador del tiempo del día
+float velocidadCiclo = 0.0009f;    // velocidad de transición (ajústala)
+bool esNoche =  true;
+float velocidad;
+
+
+
+
 Window mainWindow;
 std::vector<Mesh*> meshList;
 std::vector<Shader> shaderList;
@@ -75,13 +84,19 @@ Texture TipografiaBackyardigans;
 
 //Se añade una textura de un camino
 Texture CaminoTexture;
+Texture CaminoLodoTexture;
 
 //Letrero PUERTA ENRIQUE
 //Puerta
 Texture PuertaTexture;
-
 Texture LetreroTexture;
 
+
+// ----------------- NPCS ----------------- //
+Model Baljeet;
+
+
+// ---------------- ENTORNO ----------------- //
 // Modelos de la puerta Joshua
 Model Arco;
 Model PuertaIzq;
@@ -94,18 +109,45 @@ Model PuertaIzq_M;
 Model PuertaDer_M;
 Model Arco_M;
 
+// Modelo cabeza olmeca
+Model CabezaOlmeca;
+
+// Modelos RING de boxeo
+Model Ring_R;
+Model Escaleras_R;
+Model Lona_R;
+
+// Modelos de columpios
+Model Estructura_C;
+Model ColumpioDer_C;
+Model ColumpioIzq_C;
+
+// Modelo mesa de picnic
+Model MesaPicnic;
+
+// Modelos baño portatil
+Model CuerpoBaño;
+Model TapaBaño;
+Model PuertaBaño;
+
+// Fuente
+Model CuerpoFuente;
+Model Fuente;
 
 //Se añaden los modelos separados del dragón (cuerpo, ala izquierda y ala derecha).
 Model DragonCuerpo_M;
 Model DragonAlaIzq_M;
 Model DragonAlaDer_M;
 Model Tiamat_M;
-Skybox skybox;
+
+//Skyboxes
+Skybox skyboxDia;
+Skybox skyboxNoche;
+Skybox skyboxAMAT;
 
 //materiales
 Material Material_brillante;
 Material Material_opaco;
-
 
 //Sphere cabeza = Sphere(0.5, 20, 20);
 GLfloat deltaTime = 0.0f;
@@ -307,12 +349,12 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	camera = Camera(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.5f, 0.5f);
+	camera = Camera(glm::vec3(-150.0f, 0.0f, -150.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.5f, 0.5f);
 
 	brickTexture = Texture("Textures/pasto.jpg");
 	brickTexture.LoadTextureA();
-	dirtTexture = Texture("Textures/dirt.png");
-	dirtTexture.LoadTextureA();
+	/*dirtTexture = Texture("Textures/dirt.png");
+	dirtTexture.LoadTextureA();*/
 	plainTexture = Texture("Textures/plain.png");
 	plainTexture.LoadTextureA();
 	pisoTexture = Texture("Textures/PastoJoshua.jpg");
@@ -332,9 +374,57 @@ int main()
 
 
 	// Cargando el modelo del camino
-	CaminoTexture = Texture("Textures/camino.jpg");
-	CaminoTexture.LoadTextureA();
 
+	CaminoTexture = Texture("Textures/CaminoGrava.jpg");
+	CaminoTexture.LoadTextureA();
+	CaminoLodoTexture = Texture("Textures/camino.jpg");
+	CaminoLodoTexture.LoadTextureA();
+
+
+	// ----------------- NPCS ----------------- //
+
+	Baljeet = Model();
+	Baljeet.LoadModel("Models/Baljeet.obj");
+
+	// ----------------- ENTORNO ------------------ //
+
+	// Cabeza Olmeca
+	CabezaOlmeca = Model();
+	CabezaOlmeca.LoadModel("Models/CabezaOlmeca.obj");
+
+	// RING 
+	Ring_R = Model();
+	Ring_R.LoadModel("Models/RingBoxeo/Ring.obj");
+	Escaleras_R = Model();
+	Escaleras_R.LoadModel("Models/RingBoxeo/Escaleras.obj");
+	Lona_R = Model();
+	Lona_R.LoadModel("Models/RingBoxeo/Lona.obj");
+
+	// Columpios
+	Estructura_C = Model();
+	Estructura_C.LoadModel("Models/Columpios/EstructuraColumpios.obj");
+	ColumpioIzq_C = Model();
+	ColumpioIzq_C.LoadModel("Models/Columpios/ColumpioIzquierda.obj");
+	ColumpioDer_C = Model();
+	ColumpioDer_C.LoadModel("Models/Columpios/ColumpioDerecha.obj");
+
+	// Mesa Picnic
+	MesaPicnic = Model();
+	MesaPicnic.LoadModel("Models/mesaPicnic.obj");
+
+	// Baño portatil
+	CuerpoBaño = Model();
+	CuerpoBaño.LoadModel("Models/Bano/CuerpoBano.obj");
+	PuertaBaño = Model();
+	PuertaBaño.LoadModel("Models/Bano/PuertaBano.obj");
+	TapaBaño = Model();
+	TapaBaño.LoadModel("Models/Bano/TapaBano.obj");
+
+	// Fuente
+	CuerpoFuente = Model();
+	CuerpoFuente.LoadModel("Models/Decoracion/CuerpoFuente.obj");
+	Fuente = Model();
+	Fuente.LoadModel("Models/Decoracion/Fuente.obj");
 
 
 	// Puerta JOSHUA
@@ -360,24 +450,46 @@ int main()
 	PuertaIzq_M = Model();
 	PuertaIzq_M.LoadModel("Models/PuertaIzqEnrique.dae");
 
-	std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/nx.jpg");
-	skyboxFaces.push_back("Textures/Skybox/px.jpg");
-	skyboxFaces.push_back("Textures/Skybox/ny.jpg");
-	skyboxFaces.push_back("Textures/Skybox/py.jpg");
-	skyboxFaces.push_back("Textures/Skybox/nz.jpg");
-	skyboxFaces.push_back("Textures/Skybox/pz.jpg");
+	//SKYBOX DÍA
+	std::vector<std::string> skyboxFacesDia;
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/nx.jpg");
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/px.jpg");
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/ny.jpg");
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/py.jpg");
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/nz.jpg");
+	skyboxFacesDia.push_back("Textures/Skybox/Dia/pz.jpg");
+	skyboxDia = Skybox(skyboxFacesDia);
 
-	skybox = Skybox(skyboxFaces);
+	//SKYBOX NOCHE
+	std::vector<std::string> skyboxFacesNoche;
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/nx.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/px.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/ny.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/py.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/nz.jpg");
+	skyboxFacesNoche.push_back("Textures/Skybox/Noche/pz.jpg");
+	skyboxNoche = Skybox(skyboxFacesNoche);
+
+	//SKYBOX TARDE O AMANECER
+	std::vector<std::string> skyboxFacesAMAT;
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/nx.jpg");
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/px.jpg");
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/ny.jpg");
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/py.jpg");
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/nz.jpg");
+	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/pz.jpg");
+	skyboxAMAT = Skybox(skyboxFacesAMAT);
+
 
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
+	mainLight = DirectionalLight(
+		0.8, 0.8, 0.4,
+		0.3, 0.4,
+		0.3, -1.0, 0.5
+	);
 
-	//luz direccional, sólo 1 y siempre debe de existir
-	mainLight = DirectionalLight(1.0f, 1.0f, 1.0f,
-		1.0f, 1.0f,
-		0.0f, 0.0f, -1.0f);
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
 	//Declaración de primer luz puntual
@@ -470,7 +582,47 @@ int main()
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+		//skybox.DrawSkybox(camera.calculateViewMatrix(), projection);
+
+
+		skyboxDia.DrawSkybox(camera.calculateViewMatrix(), projection);
+
+		/*float tiempo = glfwGetTime();
+		float ciclo = (sin(tiempo * 0.08f) + 1.0f) / 2.0f; // oscila entre 0 y 1
+
+		glm::vec3 colorDia(1.0f, 0.95f, 0.8f);
+		glm::vec3 colorNoche(0.2f, 0.3f, 0.6f);
+
+		glm::vec3 colorActual = glm::mix(colorNoche, colorDia, ciclo);
+
+		float intensidadAmb = glm::mix(0.05f, 0.4f, ciclo);
+		float intensidadDif = glm::mix(0.1f, 0.8f, ciclo);
+
+		glm::vec3 direccionLuz = glm::normalize(glm::vec3(
+			sin(tiempo * 0.01f),
+			-cos(tiempo * 0.01f),
+			-0.3f
+		));
+
+		if (ciclo >= 0.6)
+		{
+			skyboxDia.DrawSkybox(camera.calculateViewMatrix(), projection);
+		}
+		else if (ciclo <= 0.4f)
+		{
+			skyboxNoche.DrawSkybox(camera.calculateViewMatrix(), projection);
+		}
+		else {
+			skyboxAMAT.DrawSkybox(camera.calculateViewMatrix(), projection);
+		}*/
+
+
+		/*mainLight = DirectionalLight(
+			colorActual.r, colorActual.g, colorActual.b,
+			intensidadAmb, intensidadDif,
+			direccionLuz.x, direccionLuz.y, direccionLuz.z
+		);*/
+
 		shaderList[0].UseShader();
 		uniformModel = shaderList[0].GetModelLocation();
 		uniformProjection = shaderList[0].GetProjectionLocation();
@@ -503,8 +655,8 @@ int main()
 		modelaux = glm::mat4(1.0);
 		color = glm::vec3(1.0f, 1.0f, 1.0f);
 		toffset = glm::vec2(0.0f, 0.0f);
-
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, -2.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(30.0f, 1.0f, 30.0f));
@@ -515,59 +667,245 @@ int main()
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[2]->RenderMesh();
 
-		// Instancia del camino
-		model = glm::mat4(1.0);
-		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -1.95f, 0.0f));
+		// ---------------------- CAMINO ---------------------//
+
+		// CAMINO EN EL SPAWN
+		/*model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-150.0f, -1.95f, -150.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 1.0f, 2.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		CaminoTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[2]->RenderMesh();
+		meshList[2]->RenderMesh();*/
 
+		// Instancia del camino spawn - zona de comida
+		for (int i = 0; i < 2; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-150.0f, -1.95f, -120.0f + (i * 20)));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+			CaminoTexture.UseTexture();
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			meshList[2]->RenderMesh();
+		}
+
+		for (int i = 0; i < 2; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-150.0f, -1.95f, -75.0f + (i * 30)));
+			model = glm::scale(model, glm::vec3(1.5f, 1.0f, 1.5f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+			CaminoLodoTexture.UseTexture();
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			meshList[2]->RenderMesh();
+		}
+		
+
+
+
+		// ----------------- NPCS ----------------- //
+
+		//	Baljeet
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Baljeet.RenderModel();	
+
+		// ----------------- ENTORNO ----------------------- //
+
+		//MESA PICNIC 1, derecha
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-160.0f, 0.6f, -80.0f));
+		modelaux = model;
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		//MESA PICNIC 2, derecha
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-165.0f, 0.6f, -65.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		//MESA PICNIC 3, derecha
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-160.0f, 0.6f, -50.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		//MESA PICNIC 4. izquierda
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-140.0f, 0.6f, -80.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		//MESA PICNIC 5, izquierda
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-135.0f, 0.6f, -65.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		//MESA PICNIC 6, izquierda
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-140.0f, 0.6f, -50.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MesaPicnic.RenderModel();
+
+		// CuerpoFuente
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-150.0f, -1.75f, -65.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CuerpoFuente.RenderModel();
+
+		// Fuente
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Fuente.RenderModel();
+
+		//BAÑO
+		for (int i = 0; i < 3; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-170.0f, -1.6f, -120.0f + (i * 7.5f)));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			modelaux = model;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			CuerpoBaño.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			TapaBaño.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			PuertaBaño.RenderModel();
+		}
+		
+
+
+
+		//----------------- RING DE BOXEO -----------------//
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Ring_R.RenderModel();
+
+		model = modelaux;
+		//model = glm::translate(model, glm::vec3(0.0f, 40.0f, 40.0f));
+		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		//model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Lona_R.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Escaleras_R.RenderModel();
+
+		// ------------------ Estructura columpios ----------------------//
+
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(15.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Estructura_C.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ColumpioIzq_C.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ColumpioDer_C.RenderModel();
+
+		//---------------- Cabeza olmeca ----------------//
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, -1.8f, 40.0f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CabezaOlmeca.RenderModel();
+
+		
 
 		//----------------- Puerta JOSHUA --------------------//
 		
 
 		//Definición del arco de la puerta
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
+		model = glm::translate(model, glm::vec3(-140.0f, -1.8f, -140.0f));
+		model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		modelaux = model;
-		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
-		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 3.84f, 0.58f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Arco.RenderModel();
 
 		//Definición del cartel de la puerta
 		model = modelaux;
 		//model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
-		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
-		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 3.84f, 0.58f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		CartelPuerta.RenderModel();
 
 		//Definición de la puerta izquierda, ABRE
 		//Jerarquía
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(-2.95f, -0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-4.214f, -0.0f, 0.0f));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, rotacion * toRadians, glm::vec3(0.0f, 0.0f, 1.0f)); // ABRE Y CIERRA CON F
-		model = glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaIzq.RenderModel();
 
 		//Definición de la puerta derecha, DESLIZA
 		//Jerarquía
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(3.15f, 0.082f, 0.0f));
+		model = glm::translate(model, glm::vec3(4.5f, 0.082f, 0.0f));
 		model = glm::translate(model, glm::vec3(0.0f + deslizamiento, 0.0f, 0.0f));	// ABRE Y CIERRA CON F
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(7.0f, 7.0f, 7.0f));
+		model = glm::scale(model, glm::vec3(10.0f, 10.0f, 10.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaDer.RenderModel();
 		
@@ -590,43 +928,47 @@ int main()
 		//Modelo de puerta
 		//Arco
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-50.0f, -2.0f, -80.0f));
+		model = glm::translate(model, glm::vec3(-160.0f, -2.0f, -140.0f));
 		modelaux = model;
 		//									//x		y		z							
-		model = glm::scale(model, glm::vec3(1.0f, 10.0, 5.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
+		
+		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaTexture.UseTexture();
 		Arco_M.RenderModel();
 
 		//Puerta izquierda
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.0f));
+		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.0f));
 		//Abrir por rotación 
 		//model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
+		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		//model = glm::scale(model, glm::vec3(1.0f, 10.0f, 5.0f));
-		model = glm::scale(model, glm::vec3(5.0f, 10.0f, 1.0f));
+		//model = glm::scale(model, glm::vec3(5.0f, 10.0f, 1.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaIzq_M.RenderModel();
 
 		//Puerta Derecha
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.5f));
-		model = glm::scale(model, glm::vec3(1.0f, 10.0f, 5.0f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.5f));
+		//model = glm::scale(model, glm::vec3(1.0f, 10.0f, 5.0f));
+		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		//Abrir por desplazamiento
 		model = glm::translate(model, glm::vec3(-2.0f + mainWindow.getmuevex(), 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaDer_M.RenderModel();
 
 		//Cartel
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(1.0f, 0.0f, 20.5f));
-		model = glm::scale(model, glm::vec3(0.5f, 10.0f, 5.0f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-0.5f, 0.0f, -3.0f));//20.5f));
+		model = glm::scale(model, glm::vec3(2.0f, 6.8f, 0.2f));
+		//model = glm::scale(model, glm::vec3(0.5f, 10.0f, 5.0f));
+		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Cartel_M.RenderModel();
 
@@ -638,10 +980,11 @@ int main()
 		toffsetnumerov = 0.0;
 		toffset = glm::vec2(toffsetnumerocambiau, toffsetnumerov);
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(4.2f, 24.0f, 10.3f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(3.6f, 16.0f, -2.5f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(26.0f, 1.0f, 5.0f));
+		//model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
+		model = glm::scale(model, glm::vec3(10.0f, 0.6f, 5.0f));
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		//blending: transparencia o traslucidez
@@ -688,9 +1031,10 @@ int main()
 
 		toffset = glm::vec2(toffsetnumerocambiau, toffsetnumerov);
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 9.3f, -13.17f));
+		model = glm::translate(model, glm::vec3(-140.0f, 14.08f, -142.87f));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(4.0f, 1.0f, 1.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(5.7f, 1.428f, 1.428f));
 		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		color = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -82,6 +82,9 @@ int Window::Initialise()
 	glViewport(0, 0, bufferWidth, bufferHeight);
 	//Callback para detectar que se está usando la ventana
 	glfwSetWindowUserPointer(mainWindow, this);
+
+	//Para la camara
+	followCamState = true;
 }
 
 void Window::createCallbacks()
@@ -139,6 +142,12 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 			theWindow->articulacion1 -= 10.0;
 			theWindow->muevex -= 0.2;
 		}
+	}
+
+	//Para cambio de camara
+	if (key == GLFW_KEY_C && action == GLFW_PRESS)
+	{
+		theWindow->followCamState = !theWindow->followCamState;
 	}
 
 

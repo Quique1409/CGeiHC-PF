@@ -29,6 +29,9 @@ public:
 	bool* getsKeys() { return keys; }
 	void swapBuffers() { return glfwSwapBuffers(mainWindow); }
 
+	//Para el status de la piramide
+	bool getCamStatus() { return followCamState; }
+
 	~Window();
 private:
 	GLFWwindow* mainWindow;
@@ -43,6 +46,8 @@ private:
 	// Movimiento de puertas ENRIQUE
 	GLfloat muevex;
 	GLfloat articulacion1;
+	//followCamState
+	GLfloat followCamState;
 
 	// Práctica 9.3. Abrir o cerrar puertas
 	GLfloat muevey;

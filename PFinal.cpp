@@ -1,6 +1,6 @@
 /*
-Animación:
-Simple o básica:Por banderas y condicionales (más de 1 transformación geométrica se ve modificada)
+Animaciï¿½n:
+Simple o bï¿½sica:Por banderas y condicionales (mï¿½s de 1 transformaciï¿½n geomï¿½trica se ve modificada)
 Compleja: Por medio de funciones y algoritmos.
 Textura Animada
 */
@@ -31,7 +31,7 @@ Textura Animada
 #include"Model.h"
 #include "Skybox.h"
 
-//para iluminación
+//para iluminaciï¿½n
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -39,7 +39,7 @@ Textura Animada
 #include "Material.h"
 const float toRadians = 3.14159265f / 180.0f;
 
-//variables para animación
+//variables para animaciï¿½n
 float movCoche;
 //variables para puerta
 float rotacion = 0.0f;
@@ -59,9 +59,9 @@ float toffsetnumerocambiau = 0.0;
 float angulovaria = 0.0f;
 float dragonavance = 0.0f;
 
-// Variables para ciclo día/noche
-float tiempoDia = 0.0f;          // contador del tiempo del día
-float velocidadCiclo = 0.0009f;    // velocidad de transición (ajústala)
+// Variables para ciclo dï¿½a/noche
+float tiempoDia = 0.0f;          // contador del tiempo del dï¿½a
+float velocidadCiclo = 0.0009f;    // velocidad de transiciï¿½n (ajï¿½stala)
 bool esNoche =  true;
 float velocidad;
 
@@ -79,10 +79,12 @@ Texture dirtTexture;
 Texture plainTexture;
 Texture pisoTexture;
 Texture AgaveTexture;
+Texture PiramideTexture;
+Texture SerpTexture;
 // Texturas de los backyardigans - PUERTA JOSHUA
 Texture TipografiaBackyardigans;
 
-//Se añade una textura de un camino
+//Se aï¿½ade una textura de un camino
 Texture CaminoTexture;
 Texture CaminoLodoTexture;
 
@@ -108,6 +110,8 @@ Model Cartel_M;
 Model PuertaIzq_M;
 Model PuertaDer_M;
 Model Arco_M;
+//Prueba para seguimiento de camara
+Model Cubo_M;
 
 // Modelo cabeza olmeca
 Model CabezaOlmeca;
@@ -125,16 +129,16 @@ Model ColumpioIzq_C;
 // Modelo mesa de picnic
 Model MesaPicnic;
 
-// Modelos baño portatil
-Model CuerpoBaño;
-Model TapaBaño;
-Model PuertaBaño;
+// Modelos baï¿½o portatil
+Model CuerpoBaï¿½o;
+Model TapaBaï¿½o;
+Model PuertaBaï¿½o;
 
 // Fuente
 Model CuerpoFuente;
 Model Fuente;
 
-//Se añaden los modelos separados del dragón (cuerpo, ala izquierda y ala derecha).
+//Se aï¿½aden los modelos separados del dragï¿½n (cuerpo, ala izquierda y ala derecha).
 Model DragonCuerpo_M;
 Model DragonAlaIzq_M;
 Model DragonAlaDer_M;
@@ -144,6 +148,11 @@ Model Tiamat_M;
 Skybox skyboxDia;
 Skybox skyboxNoche;
 Skybox skyboxAMAT;
+
+//Se aÃ±aden modelos de Piramide
+Model BasePiradime_M;
+Model CupulaPiramide_M;
+Model Serpientes_M;
 
 //materiales
 Material Material_brillante;
@@ -168,7 +177,7 @@ static const char* fShader = "shaders/shader_light.frag";
 
 
 
-//cálculo del promedio de las normales para sombreado de Phong
+//cï¿½lculo del promedio de las normales para sombreado de Phong
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
@@ -320,15 +329,15 @@ void CreateObjects()
 
 	Mesh* obj6 = new Mesh();
 	obj6->CreateMesh(scoreVertices, scoreIndices, 32, 6);
-	meshList.push_back(obj6); // todos los números
+	meshList.push_back(obj6); // todos los nï¿½meros
 
 	Mesh* obj7 = new Mesh();
 	obj7->CreateMesh(numeroVertices, numeroIndices, 32, 6);
-	meshList.push_back(obj7); // solo un número
+	meshList.push_back(obj7); // solo un nï¿½mero
 
 	Mesh* obj8 = new Mesh();
 	obj8->CreateMesh(backyardigansVertices, numeroIndices, 32, 6);
-	meshList.push_back(obj8); // solo un número
+	meshList.push_back(obj8); // solo un nï¿½mero
 
 }
 
@@ -363,6 +372,11 @@ int main()
 	AgaveTexture.LoadTextureA();
 	TipografiaBackyardigans = Texture("Textures/ProyectoCGEIHC.png");
 	TipografiaBackyardigans.LoadTextureA();
+	//Piramide
+	PiramideTexture = Texture("Textures/TexturePiramide.jpg");
+	PiramideTexture.LoadTextureA();
+	SerpTexture = Texture("Textures/TextureSerp.jpg");
+	SerpTexture.LoadTextureA();
 
 	//letrero ENRIQUE
 	//Puerta
@@ -412,13 +426,13 @@ int main()
 	MesaPicnic = Model();
 	MesaPicnic.LoadModel("Models/mesaPicnic.obj");
 
-	// Baño portatil
-	CuerpoBaño = Model();
-	CuerpoBaño.LoadModel("Models/Bano/CuerpoBano.obj");
-	PuertaBaño = Model();
-	PuertaBaño.LoadModel("Models/Bano/PuertaBano.obj");
-	TapaBaño = Model();
-	TapaBaño.LoadModel("Models/Bano/TapaBano.obj");
+	// Baï¿½o portatil
+	CuerpoBaï¿½o = Model();
+	CuerpoBaï¿½o.LoadModel("Models/Bano/CuerpoBano.obj");
+	PuertaBaï¿½o = Model();
+	PuertaBaï¿½o.LoadModel("Models/Bano/PuertaBano.obj");
+	TapaBaï¿½o = Model();
+	TapaBaï¿½o.LoadModel("Models/Bano/TapaBano.obj");
 
 	// Fuente
 	CuerpoFuente = Model();
@@ -450,7 +464,17 @@ int main()
 	PuertaIzq_M = Model();
 	PuertaIzq_M.LoadModel("Models/PuertaIzqEnrique.dae");
 
-	//SKYBOX DÍA
+	//Piramide
+	BasePiradime_M = Model();
+	BasePiradime_M.LoadModel("Models/BasePiramide.obj");
+	CupulaPiramide_M = Model();
+	CupulaPiramide_M.LoadModel("Models/CupulaPiramide.dae");
+
+	//Seguimiento de camara prueba Quique
+	Cubo_M = Model();
+	Cubo_M.LoadModel("Models/Cubo.dae");
+
+	//SKYBOX Dï¿½A
 	std::vector<std::string> skyboxFacesDia;
 	skyboxFacesDia.push_back("Textures/Skybox/Dia/nx.jpg");
 	skyboxFacesDia.push_back("Textures/Skybox/Dia/px.jpg");
@@ -492,7 +516,7 @@ int main()
 
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
-	//Declaración de primer luz puntual
+	//Declaraciï¿½n de primer luz puntual
 	pointLights[0] = PointLight(1.0f, 0.0f, 0.0f,
 		0.0f, 1.0f,
 		0.0f, 2.5f, 1.5f,
@@ -526,7 +550,7 @@ int main()
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 
 	movCoche = 0.0f;
-	//Movimientos base para cada transformación de las puertas
+	//Movimientos base para cada transformaciï¿½n de las puertas
 	movOffset = 6.0f;
 	rotdeslizamientoOffset = 0.12f;
 
@@ -549,13 +573,13 @@ int main()
 
 		//dragonavance
 		dragonavance -= 0.1f * deltaTime;
-		/* Animación en Loop Se ejecuta de forma continua mientras la aplicación está activa
-		Si la animación no es el loop, y se puede iniciar varias veces, el estado final y el estado inicial
+		/* Animaciï¿½n en Loop Se ejecuta de forma continua mientras la aplicaciï¿½n estï¿½ activa
+		Si la animaciï¿½n no es el loop, y se puede iniciar varias veces, el estado final y el estado inicial
 		deben de ser el mismo, o agregar elementos para que no se vea que los modelos desaparecen
 		o aparecen de la nada.
 		*/
 
-		// Animación que se activa al presionar la tecla F, permite abrir o cerrar las puertas.
+		// Animaciï¿½n que se activa al presionar la tecla F, permite abrir o cerrar las puertas.
 		if (mainWindow.getAbrirCerrarPuerta())
 		{
 			if (rotacion > 0.0f)
@@ -576,9 +600,20 @@ int main()
 
 		//Recibir eventos del usuario
 		glfwPollEvents();
-		camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		if (!mainWindow.getCamStatus())
+		{
+			camera.keyControl(mainWindow.getsKeys(), deltaTime);
+			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+		}
 
+		if ( mainWindow.getCamStatus())
+		{
+			// Mover el cubo en un cÃ­rculo
+			float radius = 10.0f;
+			float speed = 0.5f;
+			cubePosition.x = sin(now * speed) * radius;
+			cubePosition.z = cos(now * speed) * radius;
+		}
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -631,20 +666,40 @@ int main()
 		uniformColor = shaderList[0].getColorLocation();
 		uniformTextureOffset = shaderList[0].getOffsetLocation(); // para la textura con movimiento
 
-		//información en el shader de intensidad especular y brillo
+		//informaciï¿½n en el shader de intensidad especular y brillo
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
-		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
-		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(camera.calculateViewMatrix()));
-		glUniform3f(uniformEyePosition, camera.getCameraPosition().x, camera.getCameraPosition().y, camera.getCameraPosition().z);
+		// --- LÃ³gica de CÃ¡mara de Seguimiento --------------------------------
 
-		// luz ligada a la cámara de tipo flash
+		if (mainWindow.getCamStatus())
+		{
+			//se define el offset de la camara
+			glm::vec3 cameraOffset = glm::vec3(0.0f, 5.0f, 15.0f); //Se modifica la distancia de la camara
+			cameraPosForShader = cubePosition + cameraOffset;
+			cameraDirForShader = glm::normalize(cubePosition - cameraPosForShader);
+
+			//Se usa lookAt para la matriz de la camara
+			viewMatrix = glm::lookAt(cameraPosForShader, cubePosition, glm::vec3(0.0f, 1.0f, 0.0f));
+		}
+		else
+		{
+			// En caso de acabar la animaciÃ³n seguir con el movimeinto normal de la camara
+			viewMatrix = camera.calculateViewMatrix();
+			cameraPosForShader = camera.getCameraPosition();
+			cameraDirForShader = camera.getCameraDirection();
+		}
+
+		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
+		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniform3f(uniformEyePosition, cameraPosForShader.x, cameraPosForShader.y, cameraPosForShader.z);
+		
+		// luz ligada a la cï¿½mara de tipo flash
 		lowerLight = camera.getCameraPosition();
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, camera.getCameraDirection());
 
-		//información al shader de fuentes de iluminación
+		//informaciï¿½n al shader de fuentes de iluminaciï¿½n
 		shaderList[0].SetDirectionalLight(&mainLight);
 		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
@@ -721,6 +776,34 @@ int main()
 
 		// ----------------- ENTORNO ----------------------- //
 
+		//Piramide con jeraruquÃ­a -------------------------
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
+		modelaux = model;
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PiramideTexture.UseTexture();
+		BasePiradime_M.RenderModel();
+
+		//Cupula de piramide
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 20.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
+		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PiramideTexture.UseTexture();
+		CupulaPiramide_M.RenderModel();
+
+		//Prueba del cubo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, cubePosition);
+		modelaux = model;
+		//									x	  y		z							
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Cubo_M.RenderModel();
+
 		//MESA PICNIC 1, derecha
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-160.0f, 0.6f, -80.0f));
@@ -794,7 +877,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Fuente.RenderModel();
 
-		//BAÑO
+		//BAï¿½O
 		for (int i = 0; i < 3; i++) {
 			model = glm::mat4(1.0);
 			model = glm::translate(model, glm::vec3(-170.0f, -1.6f, -120.0f + (i * 7.5f)));
@@ -803,15 +886,15 @@ int main()
 			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 			modelaux = model;
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			CuerpoBaño.RenderModel();
+			CuerpoBaï¿½o.RenderModel();
 
 			model = modelaux;
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			TapaBaño.RenderModel();
+			TapaBaï¿½o.RenderModel();
 
 			model = modelaux;
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			PuertaBaño.RenderModel();
+			PuertaBaï¿½o.RenderModel();
 		}
 		
 
@@ -870,7 +953,7 @@ int main()
 		//----------------- Puerta JOSHUA --------------------//
 		
 
-		//Definición del arco de la puerta
+		//Definiciï¿½n del arco de la puerta
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-140.0f, -1.8f, -140.0f));
 		model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -879,7 +962,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Arco.RenderModel();
 
-		//Definición del cartel de la puerta
+		//Definiciï¿½n del cartel de la puerta
 		model = modelaux;
 		//model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
 		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -887,8 +970,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		CartelPuerta.RenderModel();
 
-		//Definición de la puerta izquierda, ABRE
-		//Jerarquía
+		//Definiciï¿½n de la puerta izquierda, ABRE
+		//Jerarquï¿½a
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(-4.214f, -0.0f, 0.0f));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -898,8 +981,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaIzq.RenderModel();
 
-		//Definición de la puerta derecha, DESLIZA
-		//Jerarquía
+		//Definiciï¿½n de la puerta derecha, DESLIZA
+		//Jerarquï¿½a
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(4.5f, 0.082f, 0.0f));
 		model = glm::translate(model, glm::vec3(0.0f + deslizamiento, 0.0f, 0.0f));	// ABRE Y CIERRA CON F
@@ -911,7 +994,7 @@ int main()
 		
 		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
-		//Agave ¿qué sucede si lo renderizan antes del coche y de la pista?
+		//Agave ï¿½quï¿½ sucede si lo renderizan antes del coche y de la pista?
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
@@ -941,7 +1024,7 @@ int main()
 		//Puerta izquierda
 		model = modelaux;
 		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.0f));
-		//Abrir por rotación 
+		//Abrir por rotaciï¿½n 
 		//model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
@@ -974,7 +1057,7 @@ int main()
 
 		//Desplazamiento cartel.
 
-		toffsetnumerocambiau += 0.0005; // Solo se baja el número de offset de cada número 
+		toffsetnumerocambiau += 0.0005; // Solo se baja el nï¿½mero de offset de cada nï¿½mero 
 		if (toffsetnumerocambiau > 1.0)
 			toffsetnumerocambiau = 0.0;
 		toffsetnumerov = 0.0;
@@ -1022,7 +1105,7 @@ int main()
 
 		//Movimiento sobre la textura del texto PROYECTO CGEIHC 
 		/*
-		¿Cómo hacer para que sea a una velocidad visible?
+		ï¿½Cï¿½mo hacer para que sea a una velocidad visible?
 		*/
 		toffsetnumerocambiau += 0.0005;
 		if (toffsetnumerocambiau > 1.0)

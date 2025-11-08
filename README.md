@@ -3,7 +3,9 @@ Repositorio Oficial destinado al proyecto final de Computación Grafica e Intera
 
 Se presenta un entorno virtual interactivo con tematica prehispanica y de lucha libre mexicana, utilizando OpenGL y GLSL, junto con softwares de modelado 3D.
 
-GOOGLE DRIVE COMMIT 06/11/25 15:35 con MODELOS de ENTORNO, BALJEET (NPC) Y TEXTURAS NECESARIAS: https://drive.google.com/file/d/19gwYWAvxdkDkeoEPHHVeVil2qK9lmt5p/view?usp=sharing
+GOOGLE DRIVE COMMIT 06/11/25 15:35 con MODELOS de ENTORNO, BALJEET (NPC) Y TEXTURAS NECESARIAS: https://drive.google.com/file/d/19gwYWAvxdkDkeoEPHHVeVil2qK9lmt5p/view?usp=sharing.
+
+Quique: https://drive.google.com/file/d/1n59wOlR8TS6-j2-w0WA6Cqk-pdVox6HZ/view?usp=sharing
 
 Paea la camara de seguimiento \\
 https://learnopengl.com/Getting-started/Camera \\

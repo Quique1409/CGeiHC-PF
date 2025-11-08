@@ -93,6 +93,8 @@ Texture VidrioOvniTexture;
 
 //Lamparas
 Texture lampTexture;
+Texture lampBJoshuaTexture;
+Texture lampNJoshuaTexture;
 
 // Texturas de los backyardigans - PUERTA JOSHUA
 Texture TipografiaBackyardigans;
@@ -152,6 +154,7 @@ Model Valla;
 
 //Lampara
 Model Lampara;
+Model LamparaJoshua;
 
 
 //Silla coca cola
@@ -447,6 +450,11 @@ int main()
 	lampTexture = Texture("Textures/Lamp.png");
 	lampTexture.LoadTextureA();
 
+	lampBJoshuaTexture = Texture("Textures/imagenBlanca.png");
+	lampBJoshuaTexture.LoadTextureA();
+	lampNJoshuaTexture = Texture("Textures/imagenNegra.png");
+	lampNJoshuaTexture.LoadTextureA();
+
 	// ----------------- NPCS -----------------
 
 	Baljeet = Model();
@@ -536,6 +544,9 @@ int main()
 	//Lampara
 	Lampara = Model();
 	Lampara.LoadModel("Models/Lampara.dae");
+
+	LamparaJoshua = Model();
+	LamparaJoshua.LoadModel("Models/LamparaJoshua.dae");
 
 	// Fuente
 	CuerpoFuente = Model();
@@ -698,13 +709,13 @@ int main()
 	spotLightCount++;
 
 	//luz fija
-	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
+	/*spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
 		1.0f, 2.0f,
 		5.0f, 10.0f, 0.0f,
 		0.0f, -5.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		15.0f);
-	spotLightCount++;
+	spotLightCount++;*/
 
 	//Para la lampara
 	PointLight lamparaON = pointLights[0];
@@ -1325,14 +1336,180 @@ int main()
 
 		//-------------------------------- Termino Conjunto 2 ---------------------------------
 
+		//-------------------------------- Conjunto 3 ---------------------------------
+		//ARBOL 3
+		for (int i = 0; i < 8; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-10.0f, -2.0f, -65.0f + (i * 30)));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+			modelaux = model;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			ArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			CopaArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			EntradaArbolS.RenderModel();
+		}
+
+		//Arbusto 3
+		for (int i = 0; i < 12; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(0.0f, -0.8f, -78.0f + (i * 10)));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Arbusto.RenderModel();
+		}
+
+		//Bancos
+		for (int i = 0; i < 12; i++)
+		{
+			if ((i % 3) != 2)
+			{
+				model = glm::mat4(1.0);
+				model = glm::translate(model, glm::vec3(0.0f, -0.5f, -73.0f + (i * 10)));
+				model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+				modelaux = model;
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				BancoMadera.RenderModel();
+				//Patas de banca
+				model = modelaux;
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				BancoPatas.RenderModel();
+			}
+			
+		}
+
+		//Arbusto 4
+		for (int i = 0; i < 6; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(0.0f, -0.8f, 70.0f + (i * 10)));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Arbusto.RenderModel();
+		}
+
+		//Bancos 4
+		for (int i = 0; i < 5; i++)
+		{
+			if ((i % 3) != 2)
+			{
+				model = glm::mat4(1.0);
+				model = glm::translate(model, glm::vec3(0.0f, -0.5f, 75.0f + (i * 10)));
+				model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+				model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+				model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+				modelaux = model;
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				BancoMadera.RenderModel();
+				//Patas de banca
+				model = modelaux;
+				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+				BancoPatas.RenderModel();
+			}
+			
+		}
+
+		//-------------------------------- Termino Conjunto 3 ---------------------------------
+
+		//-------------------------------- Conjunto 4 ---------------------------------
+		//ARBOL 5
+		for (int i = 0; i < 12; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(35.0f, -2.0f, -75.0f + (i * 20)));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+			modelaux = model;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			ArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			CopaArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			EntradaArbolS.RenderModel();
+		}
+
 		//Valla
-		/*model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-110.0f, -0.8f, -95.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Valla.RenderModel();*/
+		for (int i = 0; i < 34; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(35.0f, -1.5f, -95.0f + (i * 6.5)));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Valla.RenderModel();
+		}
+		//-------------------------------- Termino Conjunto 4 ---------------------------------
+
+		//------------------------ Vallas y Arboles --------------------------
+		//Vallas
+		for (int i = 0; i < 5; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(6.0f + (i * 6.5), -1.5f, 125.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Valla.RenderModel();
+		}
+
+		//ARBOL 6
+		for (int i = 0; i < 3; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-5.0f + (i * 15), -2.0f, 150.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+			modelaux = model;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			ArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			CopaArbolS.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			EntradaArbolS.RenderModel();
+		}
+
+		//Vallas abajo
+		for (int i = 0; i < 3; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(38.0f + (i * 6.5), -1.5f, -99.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Valla.RenderModel();
+		}
+
+		//Vallas abajo columpios
+		for (int i = 0; i < 5; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(25.0f + (i * 6.5), -1.5f, -125.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Valla.RenderModel();
+		}
+		//--------------------------------------------------------------------
 
 		// Carrito de hotdogs //
 		model = glm::mat4(1.0);
@@ -1552,6 +1729,23 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		CabezaOlmeca.RenderModel();
 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-95.0f, -1.8f, -115.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ArbolS.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CopaArbolS.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		EntradaArbolS.RenderModel();
+
 
 		//----------------- Luces / Lamparas -----------------
 		//Lampara 1
@@ -1593,6 +1787,60 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		lampTexture.UseTexture();
 		Lampara.RenderModel();
+
+		//-------------------- Lampara Joshua -------------------------
+
+		for (int i = 0; i < 2; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-90.0f + (i * 20), -2.0f, -95.0f));
+			model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+			model = glm::rotate(model, 180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			lampBJoshuaTexture.UseTexture();
+			lampNJoshuaTexture.UseTexture();
+			LamparaJoshua.RenderModel();
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(0.0f, -2.0f, 40.0f + (i * 22)));
+			model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+			model = glm::rotate(model, 180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			lampBJoshuaTexture.UseTexture();
+			lampNJoshuaTexture.UseTexture();
+			LamparaJoshua.RenderModel();
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(53.0f, -2.0f, -123.0f + (i * 22)));
+			model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+			model = glm::rotate(model, 180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			lampBJoshuaTexture.UseTexture();
+			lampNJoshuaTexture.UseTexture();
+			LamparaJoshua.RenderModel();
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-65.0f + (i * 32), -2.0f, -165.0f));
+			model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+			model = glm::rotate(model, 180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			lampBJoshuaTexture.UseTexture();
+			lampNJoshuaTexture.UseTexture();
+			LamparaJoshua.RenderModel();
+		}
 
 		//----------------- Puerta JOSHUA --------------------
 
@@ -1638,7 +1886,7 @@ int main()
 		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
 		//Agave �qu� sucede si lo renderizan antes del coche y de la pista?
-		model = glm::mat4(1.0);
+		/*model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1647,7 +1895,7 @@ int main()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		AgaveTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[3]->RenderMesh();
+		meshList[3]->RenderMesh();*/
 
 		//----------------- Puerta ENRIQUE --------------------
 

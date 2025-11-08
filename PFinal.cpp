@@ -132,6 +132,11 @@ Model PuertaBano;
 Model CuerpoFuente;
 Model Fuente;
 
+// Valla
+Model Valla;
+
+//Silla coca cola
+Model SillaCC;
 
 //Arbol con abertura
 Model ArbolS;
@@ -146,9 +151,19 @@ Model TapaHotDogs;
 Model HotDog;
 Model SalsaMostaza;
 
-//Carro Pizza
-Model CarroPizza;
+//Model PuestoPiza
+Model PuestoPizza;
+Model MaderaPuesto;
+Model CajaPizza;
+Model Pizza;
+Model TapaCajaPizza;
 
+// Banco
+Model BancoMadera;
+Model BancoPatas;
+
+//Arbusto
+Model Arbusto;
 
 //Prueba para seguimiento de camara
 Model Cubo_M;
@@ -460,16 +475,43 @@ int main()
 	SalsaMostaza = Model();
 	SalsaMostaza.LoadModel("Models/ZonaComida/SalsaMostaza.obj");
 
-	/*//Carro de Pizza
-	CarroPizza = Model();
-	CarroPizza.LoadModel("Models/ZonaComida/salsaMostaza.obj");*/
+	//Puesto de Pizza
+	PuestoPizza = Model();
+	PuestoPizza.LoadModel("Models/ZonaComida/PuestoRojo.obj");
+	MaderaPuesto = Model();
+	MaderaPuesto.LoadModel("Models/ZonaComida/MesaPuestoRojo.obj");
 
+	//Pizza
+	CajaPizza = Model();
+	CajaPizza.LoadModel("Models/ZonaComida/Caja.obj");
+	Pizza = Model();
+	Pizza.LoadModel("Models/ZonaComida/Pizza.obj");
+	TapaCajaPizza = Model();
+	TapaCajaPizza.LoadModel("Models/ZonaComida/CajaPizza.obj");
+
+	//Banco
+	BancoMadera = Model();
+	BancoMadera.LoadModel("Models/Decoracion/BancoMadera.obj");
+	BancoPatas = Model();
+	BancoPatas.LoadModel("Models/Decoracion/BancoPatas.obj");
+
+	//Arbusto
+	Arbusto = Model();
+	Arbusto.LoadModel("Models/Decoracion/Arbusto.obj");
 
 	// Fuente
 	CuerpoFuente = Model();
 	CuerpoFuente.LoadModel("Models/Decoracion/CuerpoFuente.obj");
 	Fuente = Model();
 	Fuente.LoadModel("Models/Decoracion/Fuente.obj");
+
+	// Valla
+	Valla = Model();
+	Valla.LoadModel("Models/Decoracion/Valla.obj");
+
+	//PALENQUE?
+	SillaCC = Model();
+	SillaCC.LoadModel("Models/RingBoxeo/SillaCC.obj");
 
 	// Puerta JOSHUA
 	PuertaIzq = Model();
@@ -497,7 +539,9 @@ int main()
 	BasePiradime_M = Model();
 	BasePiradime_M.LoadModel("Models/BasePiramide.obj");
 	CupulaPiramide_M = Model();
-	CupulaPiramide_M.LoadModel("Models/CupulaPiramide.dae");
+	CupulaPiramide_M.LoadModel("Models/CupulaPiramide.obj");
+	Serpientes_M = Model();
+	Serpientes_M.LoadModel("Models/SerpientePiramide.obj");
 
 	//Seguimiento de camara prueba Quique
 	Cubo_M = Model();
@@ -534,14 +578,14 @@ int main()
 	skyboxAMAT = Skybox(skyboxFacesAMAT);
 
 	// Skybox original
-	std::vector<std::string> skyboxFaces;
+	/*std::vector<std::string> skyboxFaces;
 	skyboxFaces.push_back("Textures/Skybox/nx.jpg");
 	skyboxFaces.push_back("Textures/Skybox/px.jpg");
 	skyboxFaces.push_back("Textures/Skybox/ny.jpg");
 	skyboxFaces.push_back("Textures/Skybox/py.jpg");
 	skyboxFaces.push_back("Textures/Skybox/nz.jpg");
 	skyboxFaces.push_back("Textures/Skybox/pz.jpg");
-	skybox = Skybox(skyboxFaces);
+	skybox = Skybox(skyboxFaces);*/
 
 
 	Material_brillante = Material(4.0f, 256);
@@ -806,25 +850,46 @@ int main()
 			meshList[2]->RenderMesh();
 		}
 
+		for (int i = 0; i < 2; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-135.0f + (i * 25), -1.95f, -112.0f));
+			model = glm::scale(model, glm::vec3(1.25f, 1.0f, 1.25f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			glUniform3fv(uniformColor, 1, glm::value_ptr(color));
+			glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
+			CaminoTexture.UseTexture();
+			Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
+			meshList[2]->RenderMesh();
+		}
+
 		// --- INICIO DE OBJETOS ---
 		//Piramide con jeraruquía -------------------------
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 5.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-80.0f, -1.5f, -25.0f));
 		modelaux = model;
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		PiramideTexture.UseTexture();
+		PuertaTexture.UseTexture();
 		BasePiradime_M.RenderModel();
 
 		//Cupula de piramide
 		model = modelaux;
-		model = glm::translate(model, glm::vec3(0.0f, 20.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(7.0f, 2.688f, 0.406f));
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PiramideTexture.UseTexture();
 		CupulaPiramide_M.RenderModel();
+
+		//Serpientes
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-0.0f, 0.0f, -0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		//model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		SerpTexture.UseTexture();
+		Serpientes_M.RenderModel();
 
 		//Prueba del cubo
 		model = glm::mat4(1.0);
@@ -841,9 +906,11 @@ int main()
 
 		//  Baljeet
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 2.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-50.0f, 2.0f, -145.0f));
+		model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Baljeet.RenderModel();
@@ -856,7 +923,7 @@ int main()
 		//ARBOL
 		for (int i = 0; i < 2; i++) {
 			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(-175.0f + (i * 30), -2.0f, -80.0f));
+			model = glm::translate(model, glm::vec3(-175.0f + (i * 30), -2.0f, -75.0f));
 			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
@@ -967,11 +1034,46 @@ int main()
 			PuertaBano.RenderModel();
 		}
 
+		//Banco 
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-125.0f, -0.5f, -95.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BancoMadera.RenderModel();
+
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BancoPatas.RenderModel();
+
+		//Arbusto
+		for (int i = 0; i < 2; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-130.0f + (i * 10), -0.8f, -95.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Arbusto.RenderModel();
+		}
+		
+		//Valla
+		/*model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-110.0f, -0.8f, -95.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Valla.RenderModel();*/
+
 		// Carrito de hotdogs //
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-180.0f, -1.6f, -75.0f));
+		model = glm::translate(model, glm::vec3(-170.0f, -1.6f, -85.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -989,9 +1091,10 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		TapaHotDogs.RenderModel();
 
+
 		//HOTDOG
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-180.0f, 1.2f, -75.0f));
+		model = glm::translate(model, glm::vec3(-170.0f, 1.2f, -85.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
@@ -1003,31 +1106,56 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		SalsaMostaza.RenderModel();
 
-		//Carrito Pizza
+		// Puesto de pizza
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-180.0f, 1.2f, -65.0f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
+		model = glm::translate(model, glm::vec3(-175.0f, -1.5f, -52.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		CarroPizza.RenderModel();
+		PuestoPizza.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		MaderaPuesto.RenderModel();
+
+		// Pizza
+
+		for (int i = 0; i < 2; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-177.0f, 2.6f, -62.5f /* - (i - 10)*/));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+			modelaux = model;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			CajaPizza.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			Pizza.RenderModel();
+
+			model = modelaux;
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			TapaCajaPizza.RenderModel();
+		}
+		
 
 
 		//----------------- RING DE BOXEO -----------------
 
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::translate(model, glm::vec3(-50.0f, -1.5f, -145.0f));
+		model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		//Siento que se puede reducir pero la neta así salio y ya no le quiero mover jajaja
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Ring_R.RenderModel();
 
 		model = modelaux;
-		//model = glm::translate(model, glm::vec3(0.0f, 40.0f, 40.0f));
-		//model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Lona_R.RenderModel();
 
@@ -1035,11 +1163,40 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Escaleras_R.RenderModel();
 
+		for (int i = 0; i < 4; i++) {
+			model = glm::mat4(1.0);
+			model = glm::translate(model, glm::vec3(-26.0f, 1.1f, -136.5f - (i * 5)));
+			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::scale(model, glm::vec3(5.0f, 5.0f, 5.0f));
+			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+			SillaCC.RenderModel();
+		}
+		
+
 		// ------------------ Estructura columpios ----------------------
 
+		//Columpio 1
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(15.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-10.0f, -1.5f, -130.0f));
+		model = glm::scale(model, glm::vec3(3.5f, 3.5f, 3.5f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Estructura_C.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ColumpioIzq_C.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ColumpioDer_C.RenderModel();
+
+		//Columpio 2
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(5.0f, -1.5f, -130.0f));
+		model = glm::scale(model, glm::vec3(3.5f, 3.5f, 3.5f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1055,7 +1212,7 @@ int main()
 
 		//---------------- Cabeza olmeca ----------------
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-100.0f, -1.8f, -130.0f));
+		model = glm::translate(model, glm::vec3(-100.0f, -1.8f, -135.0f));
 		model = glm::scale(model, glm::vec3(0.15f, 0.15f, 0.15f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));

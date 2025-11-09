@@ -24,6 +24,13 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	// Abrir o Cerrar puertas JOSHUA
 	abrirCerrarPuerta = true;
 
+	//inicializar luzprendida
+	luzprendida = true;
+	UFOPrendido = true;
+
+	
+
+
 	for (size_t i = 0; i < 1024; i++)
 	{
 		keys[i] = 0;
@@ -142,6 +149,12 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 			theWindow->articulacion1 -= 10.0;
 			theWindow->muevex -= 0.2;
 		}
+	}
+
+	//Lampara
+	if (key == GLFW_KEY_P && action == GLFW_PRESS)
+	{
+		theWindow->luzprendida = !theWindow->luzprendida;
 	}
 
 	//Para cambio de camara

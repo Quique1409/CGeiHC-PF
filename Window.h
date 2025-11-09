@@ -23,6 +23,11 @@ public:
 	//Abrir o cerrar puertas JOSHUA
 	GLboolean getAbrirCerrarPuerta() { return abrirCerrarPuerta; }
 
+	//para saber el estado de la luz de la lampara y UFO
+	GLboolean getprendida() { return luzprendida; }
+	//UFO
+	GLboolean getprendidaUFO() { return UFOPrendido; }
+
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);
 	}
@@ -48,6 +53,10 @@ private:
 	GLfloat articulacion1;
 	//followCamState
 	GLfloat followCamState;
+
+	//Se declara la variable
+	GLboolean luzprendida;
+	GLboolean UFOPrendido;
 
 	// Práctica 9.3. Abrir o cerrar puertas
 	GLfloat muevey;

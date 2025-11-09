@@ -28,8 +28,8 @@ Window::Window(GLint windowWidth, GLint windowHeight)
 	luzprendida = true;
 	UFOPrendido = true;
 
-	
-
+	// Iniciar animación de pizza
+	Pizza = true;
 
 	for (size_t i = 0; i < 1024; i++)
 	{
@@ -157,12 +157,19 @@ void Window::ManejaTeclado(GLFWwindow* window, int key, int code, int action, in
 		theWindow->luzprendida = !theWindow->luzprendida;
 	}
 
+	//ANIMACION
+
+	//ABRE CIERRA CAJAPIZZA
+	if (key == GLFW_KEY_E && action == GLFW_PRESS)
+	{
+		theWindow->Pizza = !theWindow->Pizza;
+	}
+
 	//Para cambio de camara
 	if (key == GLFW_KEY_C && action == GLFW_PRESS)
 	{
 		theWindow->followCamState = !theWindow->followCamState;
 	}
-
 
 	if (key >= 0 && key < 1024)
 	{

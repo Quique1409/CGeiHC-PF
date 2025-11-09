@@ -1,6 +1,6 @@
 /*
-Animaciï¿½n:
-Simple o bï¿½sica:Por banderas y condicionales (mï¿½s de 1 transformaciï¿½n geomï¿½trica se ve modificada)
+Animación:
+Simple o básica:Por banderas y condicionales (más de 1 transformación geométrica se ve modificada)
 Compleja: Por medio de funciones y algoritmos.
 Textura Animada
 */
@@ -31,7 +31,7 @@ Textura Animada
 #include"Model.h"
 #include "Skybox.h"
 
-//para iluminaciï¿½n
+//para iluminación
 #include "CommonValues.h"
 #include "DirectionalLight.h"
 #include "PointLight.h"
@@ -39,11 +39,28 @@ Textura Animada
 #include "Material.h"
 const float toRadians = 3.14159265f / 180.0f;
 
-//variables para animaciï¿½n
+//variables para animación
 float movCoche;
 //variables para puerta
 float rotacion = 0.0f;
 float deslizamiento = 0.0f;
+
+
+//variables para animación de pizza
+float abrircaja = 0.0f;
+float elevacionRebanada = 0.0f;
+float elevacionOffset;
+float abrirPizzaOffset = 0.0f;
+
+//Animación perry
+float abrirGuarida = 0.0f;
+float movPerry = 0.0f;
+float correrOffset = 0.0f;
+float elevarPuerta = 0.0f;
+float elevarPuerta2 = 0.0f;
+float rotaPerry = 0.0f;
+bool Corre = true;
+bool puertaAbierta = false;
 
 float movOffset;
 float rotdeslizamientoOffset;
@@ -59,9 +76,12 @@ float toffsetnumerocambiau = 0.0;
 float angulovaria = 0.0f;
 float dragonavance = 0.0f;
 
-// Variables para ciclo dï¿½a/noche
-float tiempoDia = 0.0f;       // contador del tiempo del dï¿½a
-float velocidadCiclo = 0.0009f;    // velocidad de transiciï¿½n (ajï¿½stala)
+//variables para keyframes
+float reproduciranimacion, habilitaranimacion, guardoFrame, reinicioFrame, ciclo, ciclo2, contador = 0;
+
+// Variables para ciclo día/noche
+float tiempoDia = 0.0f;       // contador del tiempo del día
+float velocidadCiclo = 0.0009f;    // velocidad de transición (ajústala)
 bool esNoche = true;
 float velocidad;
 
@@ -99,7 +119,7 @@ Texture lampNJoshuaTexture;
 // Texturas de los backyardigans - PUERTA JOSHUA
 Texture TipografiaBackyardigans;
 
-//Se aï¿½ade una textura de un camino
+//Se añade una textura de un camino
 Texture CaminoTexture;
 Texture CaminoLodoTexture;
 
@@ -108,8 +128,33 @@ Texture CaminoLodoTexture;
 Texture PuertaTexture;
 Texture LetreroTexture;
 
+//Letrero para interacciones
+Texture LetreroInteracciones;
+
 // ----------------- NPCS ----------------- //
 Model Baljeet;
+Model PerryTorso;
+Model PerryMI;	//mano izq
+Model PerryMD;	//mano der
+Model PerryPI;	//pie izq
+Model PerryPD;	//pie der
+Model PerryS;	//sombrero
+Model PerryC;	//Cola
+
+Model BuffordTorso; 
+Model BuffordMI;	//Mano izq
+Model BuffordMD;	//Mano der
+Model BuffordPI;	//Pie izq
+Model BuffordPD;	//Pie der
+Model BuffordCabeza;
+Model BuffordChef;	//Sombrero de chef
+
+Model TyroneTorso;
+Model TyroneCabeza;
+Model TyroneMI;
+Model TyroneMD;
+Model TyronePD;
+Model TyronePI;
 
 // ---------------- ENTORNO ----------------- //
 // Modelos de la puerta Joshua
@@ -140,7 +185,7 @@ Model ColumpioIzq_C;
 // Modelo mesa de picnic
 Model MesaPicnic;
 
-// Modelos baï¿½o portatil
+// Modelos bano portatil
 Model CuerpoBano;
 Model TapaBano;
 Model PuertaBano;
@@ -155,7 +200,6 @@ Model Valla;
 //Lampara
 Model Lampara;
 Model LamparaJoshua;
-
 
 //Silla coca cola
 Model SillaCC;
@@ -178,7 +222,11 @@ Model PuestoPizza;
 Model MaderaPuesto;
 Model CajaPizza;
 Model Pizza;
+Model RebanadaPizza;
 Model TapaCajaPizza;
+
+//Plato
+Model Plato;
 
 // Banco
 Model BancoMadera;
@@ -190,13 +238,13 @@ Model Arbusto;
 //Prueba para seguimiento de camara
 Model Cubo_M;
 
-//Se aï¿½aden los modelos separados del dragï¿½n (cuerpo, ala izquierda y ala derecha).
+//Se añaden los modelos separados del dragón (cuerpo, ala izquierda y ala derecha).
 Model DragonCuerpo_M;
 Model DragonAlaIzq_M;
 Model DragonAlaDer_M;
 Model Tiamat_M;
 
-//Se aï¿½aden modelos de Piramide
+//Se añaden modelos de Piramide
 Model BasePiradime_M;
 Model CupulaPiramide_M;
 Model Serpientes_M;
@@ -204,6 +252,7 @@ Model Serpientes_M;
 //Ovni
 Model Ovni_M;
 Model VidrioOvni_M;
+
 
 //Skyboxes
 Skybox skybox;
@@ -232,7 +281,10 @@ static const char* vShader = "shaders/shader_light.vert";
 // Fragment Shader
 static const char* fShader = "shaders/shader_light.frag";
 
-//cï¿½lculo del promedio de las normales para sombreado de Phong
+//función para teclado de keyframes 
+void inputKeyframes(bool* keys);
+
+//cálculo del promedio de las normales para sombreado de Phong
 void calcAverageNormals(unsigned int* indices, unsigned int indiceCount, GLfloat* vertices, unsigned int verticeCount,
 	unsigned int vLength, unsigned int normalOffset)
 {
@@ -374,15 +426,15 @@ void CreateObjects()
 
 	Mesh* obj6 = new Mesh();
 	obj6->CreateMesh(scoreVertices, scoreIndices, 32, 6);
-	meshList.push_back(obj6); // todos los nï¿½meros
+	meshList.push_back(obj6); // todos los números
 
 	Mesh* obj7 = new Mesh();
 	obj7->CreateMesh(numeroVertices, numeroIndices, 32, 6);
-	meshList.push_back(obj7); // solo un nï¿½mero
+	meshList.push_back(obj7); // solo un número
 
 	Mesh* obj8 = new Mesh();
 	obj8->CreateMesh(backyardigansVertices, numeroIndices, 32, 6);
-	meshList.push_back(obj8); // solo un nï¿½mero
+	meshList.push_back(obj8); // solo un número
 }
 
 void CreateShaders()
@@ -392,6 +444,162 @@ void CreateShaders()
 	shaderList.push_back(*shader1);
 }
 
+///////////////////////////////KEYFRAMES/////////////////////
+
+
+bool animacion = false;
+
+//NEW// Keyframes
+float posXHotDog = -168.5, posYHotDog = 0.2, posZHotDog = -85.3;
+float	movHotDog_x = 0.0f, movHotDog_y = 0.0f, movHotDog_z = 0.0;
+float giroHotDog = 0;
+
+float posXMostaza = -169.0, posYMostaza = -1.6, posZMostaza = -85.0;
+float	movMostaza_x = 0.0f, movMostaza_y = 0.0f, movMostaza_z = 0.0;
+float giroMostaza = 0;
+
+#define MAX_FRAMES 100 //Número de cuadros máximos
+int i_max_steps = 100; //Número de pasos entre cuadros para interpolación, a mayor número , más lento será el movimiento
+int i_curr_steps = 0;
+typedef struct _frame
+{
+	//Variables para GUARDAR Key Frames
+	float movHotDog_x;		//Variable para PosicionX
+	float movHotDog_y;		//Variable para PosicionY
+	float movHotDog_z;		//Variable para PosicionZ
+	float movHotDog_xInc;		//Variable para IncrementoX
+	float movHotDog_yInc;		//Variable para IncrementoY
+	float movHotDog_zInc;		//Variable para IncrementoZ
+	float giroHotDog;		//Variable para giroHotDog
+	float giroHotDogInc;		//Variable para IncrementogiroHotDog
+
+	float movMostaza_x;		//Variable para PosicionX
+	float movMostaza_y;		//Variable para PosicionY
+	float movMostaza_z;		//Variable para PosicionZ
+	float movMostaza_xInc;		//Variable para IncrementoX
+	float movMostaza_yInc;		//Variable para IncrementoY
+	float movMostaza_zInc;		//Variable para IncrementoZ
+	float giroMostaza;		//Variable para giroMostaza
+	float giroMostazaInc;		//Variable para IncrementogiroMostaza
+}FRAME;
+
+FRAME KeyFrame[MAX_FRAMES];
+int FrameIndex = 6;			//El número de cuadros guardados actualmente desde 0 para no sobreescribir
+bool play = false;
+int playIndex = 0;
+
+void saveFrame(void) //tecla L
+{
+
+	printf("frameindex %d\n", FrameIndex);
+
+
+	KeyFrame[FrameIndex].movHotDog_x = movHotDog_x;
+	KeyFrame[FrameIndex].movHotDog_y = movHotDog_y;
+	KeyFrame[FrameIndex].movHotDog_z = movHotDog_z;
+	KeyFrame[FrameIndex].giroHotDog = giroHotDog;
+
+	KeyFrame[FrameIndex].movMostaza_x = movMostaza_x;
+	KeyFrame[FrameIndex].movMostaza_y = movMostaza_y;
+	KeyFrame[FrameIndex].movMostaza_z = movMostaza_z;
+	KeyFrame[FrameIndex].giroMostaza = giroMostaza;
+	//Se agregan nuevas líneas para guardar más variables si es necesario
+
+	// Crea el archivo si no existe
+	/*ofstream archivo(nombreArchivo, ios::app); // modo append
+
+	if (!archivo) {
+		cerr << "Error al crear el archivo.\n";
+	}
+	else {
+		archivo << "KeyFrame: [" << FrameIndex << "] Movimiento del Helicoptero en x: " << movHotDog_x << "\n";
+		archivo << "KeyFrame: [" << FrameIndex << "] Movimiento del Helicoptero en y: " << movHotDog_y << "\n";
+		archivo << "KeyFrame: [" << FrameIndex << "] Giro del Helicoptero: " << giroHotDog << "\n";
+
+		archivo.close();
+		cout << "Datos añadidos correctamente.\n";
+	}
+
+
+
+	//no volatil,se requiere agregar una forma de escribir a un archivo para guardar los frames
+	FrameIndex++;*/
+}
+
+void resetElements(void) //Tecla 0
+{
+
+	movHotDog_x = KeyFrame[0].movHotDog_x;
+	movHotDog_y = KeyFrame[0].movHotDog_y;
+	movHotDog_z = KeyFrame[0].movHotDog_z;
+	giroHotDog = KeyFrame[0].giroHotDog;
+
+	movMostaza_x = KeyFrame[0].movMostaza_x;
+	movMostaza_y = KeyFrame[0].movMostaza_y;
+	movMostaza_z = KeyFrame[0].movMostaza_z;
+	giroMostaza = KeyFrame[0].giroMostaza;
+}
+
+void interpolation(void)
+{
+	KeyFrame[playIndex].movHotDog_xInc = (KeyFrame[playIndex + 1].movHotDog_x - KeyFrame[playIndex].movHotDog_x) / i_max_steps;
+	KeyFrame[playIndex].movHotDog_yInc = (KeyFrame[playIndex + 1].movHotDog_y - KeyFrame[playIndex].movHotDog_y) / i_max_steps;
+	KeyFrame[playIndex].movHotDog_zInc = (KeyFrame[playIndex + 1].movHotDog_z - KeyFrame[playIndex].movHotDog_z) / i_max_steps;
+	KeyFrame[playIndex].giroHotDogInc = (KeyFrame[playIndex + 1].giroHotDog - KeyFrame[playIndex].giroHotDog) / i_max_steps;
+
+	KeyFrame[playIndex].movMostaza_xInc = (KeyFrame[playIndex + 1].movMostaza_x - KeyFrame[playIndex].movMostaza_x) / i_max_steps;
+	KeyFrame[playIndex].movMostaza_yInc = (KeyFrame[playIndex + 1].movMostaza_y - KeyFrame[playIndex].movMostaza_y) / i_max_steps;
+	KeyFrame[playIndex].movMostaza_zInc = (KeyFrame[playIndex + 1].movMostaza_z - KeyFrame[playIndex].movMostaza_z) / i_max_steps;
+	KeyFrame[playIndex].giroMostazaInc = (KeyFrame[playIndex + 1].giroMostaza - KeyFrame[playIndex].giroMostaza) / i_max_steps;
+
+}
+
+
+void animate(void)
+{
+	//Movimiento del objeto con barra espaciadora
+	if (play)
+	{
+		if (i_curr_steps >= i_max_steps) //fin de animación entre frames?
+		{
+			playIndex++;
+			printf("playindex : %d\n", playIndex);
+			if (playIndex > FrameIndex - 2)	//Fin de toda la animación con último frame?
+			{
+				printf("Frame index= %d\n", FrameIndex);
+				printf("termino la animacion\n");
+				playIndex = 0;
+				play = false;
+			}
+			else //Interpolación del próximo cuadro
+			{
+
+				i_curr_steps = 0; //Resetea contador
+				//Interpolar
+				interpolation();
+			}
+		}
+		else
+		{
+			//Dibujar Animación
+			movHotDog_x += KeyFrame[playIndex].movHotDog_xInc;
+			movHotDog_y += KeyFrame[playIndex].movHotDog_yInc;
+			movHotDog_z += KeyFrame[playIndex].movHotDog_zInc;
+			giroHotDog += KeyFrame[playIndex].giroHotDogInc;
+
+			movMostaza_x += KeyFrame[playIndex].movMostaza_xInc;
+			movMostaza_y += KeyFrame[playIndex].movMostaza_yInc;
+			movMostaza_z += KeyFrame[playIndex].movMostaza_zInc;
+			giroMostaza += KeyFrame[playIndex].giroMostazaInc;
+			i_curr_steps++;
+		}
+
+	}
+}
+
+///////////////* FIN KEYFRAMES*////////////////////////////
+
+
 int main()
 {
 	mainWindow = Window(1366, 768); // 1280, 1024 or 1024, 768
@@ -400,10 +608,10 @@ int main()
 	CreateObjects();
 	CreateShaders();
 
-	//Posiciï¿½n del cubo para que se calcule cada frame
+	//Posición del cubo para que se calcule cada frame
 	glm::vec3 ovniPos = glm::vec3(-80.0f, 50.0f, -25.0f);
 
-	// Cï¿½mara
+	// Cáamara
 	camera = Camera(glm::vec3(-150.0f, 0.0f, -150.0f), glm::vec3(0.0f, 1.0f, 0.0f), -60.0f, 0.0f, 0.5f, 0.5f);
 
 	brickTexture = Texture("Textures/pasto.jpg");
@@ -420,7 +628,7 @@ int main()
 	TipografiaBackyardigans.LoadTextureA();
 
 
-	// Texturas de Pirï¿½mide
+	// Texturas de Pirámide
 	PiramideTexture = Texture("Textures/TexturePiramide.jpg");
 	PiramideTexture.LoadTextureA();
 	SerpTexture = Texture("Textures/TextureSerp.jpg");
@@ -460,6 +668,50 @@ int main()
 	Baljeet = Model();
 	Baljeet.LoadModel("Models/Baljeet.obj");
 
+	PerryTorso = Model();
+	PerryTorso.LoadModel("Models/NPCS/Perry/PerryTorso.obj");
+	PerryMI = Model();
+	PerryMI.LoadModel("Models/NPCS/Perry/PerryManoIzq.Obj");
+	PerryMD = Model();
+	PerryMD.LoadModel("Models/NPCS/Perry/PerryManoDer.obj");
+	PerryPI = Model();
+	PerryPI.LoadModel("Models/NPCS/Perry/PerryPieIzq.obj");
+	PerryPD = Model();
+	PerryPD.LoadModel("Models/NPCS/Perry/PerryPieDer.obj");
+	PerryS = Model();
+	PerryS.LoadModel("Models/NPCS/Perry/PerrySombrero.obj");
+	PerryC = Model();
+	PerryC.LoadModel("Models/NPCS/Perry/PerryCola.obj");
+
+	BuffordTorso = Model();
+	BuffordTorso.LoadModel("Models/NPCS/Bufford/TorsoBufford.obj");
+	BuffordMI = Model();
+	BuffordMI.LoadModel("Models/NPCS/Bufford/BrazoIzqBufford.obj");
+	BuffordMD = Model();
+	BuffordMD.LoadModel("Models/NPCS/Bufford/BrazoDerBufford.obj");
+	BuffordPI = Model();
+	BuffordPI.LoadModel("Models/NPCS/Bufford/PieIzqBufford.obj");
+	BuffordPD = Model();
+	BuffordPD.LoadModel("Models/NPCS/Bufford/PieDerBufford.obj");
+	BuffordCabeza = Model();
+	BuffordCabeza.LoadModel("Models/NPCS/Bufford/CabezaBufford.obj");
+	BuffordChef = Model();
+	BuffordChef.LoadModel("Models/NPCS/Bufford/SombreroBufford.obj");
+
+
+	// Tyrone
+	TyroneTorso = Model();
+	TyroneTorso.LoadModel("Models/NPCS/Tyrone/TyroneTorso.obj");
+	TyroneCabeza = Model();
+	TyroneCabeza.LoadModel("Models/NPCS/Tyrone/TyroneCabeza.obj");
+	TyroneMI = Model();
+	TyroneMI.LoadModel("Models/NPCS/Tyrone/TyroneMI.obj");
+	TyroneMD = Model();
+	TyroneMD.LoadModel("Models/NPCS/Tyrone/TyroneMD.obj");
+	TyronePD = Model();
+	TyronePD.LoadModel("Models/NPCS/Tyrone/TyronePD.obj");
+	TyronePI = Model();
+	TyronePI.LoadModel("Models/NPCS/Tyrone/TyronePI.obj");
 	// ----------------- ENTORNO ------------------ 
 
 	// Cabeza Olmeca
@@ -486,7 +738,7 @@ int main()
 	MesaPicnic = Model();
 	MesaPicnic.LoadModel("Models/mesaPicnic.obj");
 
-	// Baï¿½o portatil
+	// Baño portatil
 	CuerpoBano = Model();
 	CuerpoBano.LoadModel("Models/Bano/CuerpoBano.obj");
 	PuertaBano = Model();
@@ -528,8 +780,14 @@ int main()
 	CajaPizza.LoadModel("Models/ZonaComida/Caja.obj");
 	Pizza = Model();
 	Pizza.LoadModel("Models/ZonaComida/Pizza.obj");
+	RebanadaPizza = Model();
+	RebanadaPizza.LoadModel("Models/ZonaComida/RebanadaPizza.obj");
 	TapaCajaPizza = Model();
 	TapaCajaPizza.LoadModel("Models/ZonaComida/CajaPizza.obj");
+
+	//Plato 
+	Plato = Model();
+	Plato.LoadModel("Models/ZonaComida/Plato.obj");
 
 	//Banco
 	BancoMadera = Model();
@@ -583,7 +841,7 @@ int main()
 	PuertaIzq_M = Model();
 	PuertaIzq_M.LoadModel("Models/PuertaIzqEnrique.dae");
 
-	// Modelos de Pirï¿½mide y Cubo
+	// Modelos de Pirámide y Cubo
 	//Piramide
 	BasePiradime_M = Model();
 	BasePiradime_M.LoadModel("Models/BasePiramide.obj");
@@ -597,13 +855,12 @@ int main()
 	Ovni_M.LoadModel("Models/BaseUFO.obj");
 	VidrioOvni_M = Model();
 	VidrioOvni_M.LoadModel("Models/VidrioUFO.obj");
-	
 
 	//Seguimiento de camara prueba Quique
 	Cubo_M = Model();
 	Cubo_M.LoadModel("Models/Cubo.dae");
 
-	//SKYBOX Dï¿½A
+	//SKYBOX DÍA
 	std::vector<std::string> skyboxFacesDia;
 	skyboxFacesDia.push_back("Textures/Skybox/Dia/nx.jpg");
 	skyboxFacesDia.push_back("Textures/Skybox/Dia/px.jpg");
@@ -633,21 +890,11 @@ int main()
 	skyboxFacesAMAT.push_back("Textures/Skybox/Trancision/pz.jpg");
 	skyboxAMAT = Skybox(skyboxFacesAMAT);
 
-	// Skybox original
-	/*std::vector<std::string> skyboxFaces;
-	skyboxFaces.push_back("Textures/Skybox/nx.jpg");
-	skyboxFaces.push_back("Textures/Skybox/px.jpg");
-	skyboxFaces.push_back("Textures/Skybox/ny.jpg");
-	skyboxFaces.push_back("Textures/Skybox/py.jpg");
-	skyboxFaces.push_back("Textures/Skybox/nz.jpg");
-	skyboxFaces.push_back("Textures/Skybox/pz.jpg");
-	skybox = Skybox(skyboxFaces);*/
-
 
 	Material_brillante = Material(4.0f, 256);
 	Material_opaco = Material(0.3f, 4);
 
-	// Luz para ciclo dï¿½a/noche
+	// Luz para ciclo día/noche
 	mainLight = DirectionalLight(
 		1.0, 1.0, 1.0,
 		0.3, 0.4,
@@ -656,14 +903,13 @@ int main()
 
 	//contador de luces puntuales
 	unsigned int pointLightCount = 0;
-	//Declaraciï¿½n de primer luz puntual
-	
-	// ---Lampara------
+	//Declaración de primer luz puntual
+		// ---Lampara------
 
 	//Lampara 1
 	pointLights[0] = PointLight(1.0f, 0.75f, 0.0f,
 		0.05f, 0.01f,
-//		 K_c	k_l	  k_q
+		//		 K_c	k_l	  k_q
 		-180.0f, 7.0f, -75.0f,
 		//0.3f, 0.2f, 0.1f);
 		1.0f, 0.09f, 0.032f);
@@ -672,7 +918,7 @@ int main()
 	//Lampara 2
 	pointLights[1] = PointLight(1.0f, 0.75f, 0.0f,
 		0.05f, 0.1f,
-//		 K_c	k_l	  k_q
+		//		 K_c	k_l	  k_q
 		-165.0f, -1.5f, -30.0f,
 		//0.3f, 0.2f, 0.1f);
 		1.0f, 0.09f, 0.032f);
@@ -681,7 +927,7 @@ int main()
 	//Lampara 3
 	pointLights[2] = PointLight(1.0f, 0.75f, 0.0f,
 		0.05f, 0.1f,
-//		 K_c	k_l	  k_q
+		//		 K_c	k_l	  k_q
 		-140.0f, -1.5f, -100.0f,
 		1.0f, 0.09f, 0.032f);
 	pointLightCount++;
@@ -689,14 +935,13 @@ int main()
 	//Lampara 4
 	pointLights[3] = PointLight(1.0f, 0.75f, 0.0f,
 		0.05f, 0.1f,
-//		 K_c	k_l	  k_q
+		//		 K_c	k_l	  k_q
 		-135.0f, -1.5f, -30.0f,
 		//0.3f, 0.2f, 0.1f);
 		1.0f, 0.09f, 0.032f);
 	pointLightCount++;
 
 	PointLight activePointLights[MAX_POINT_LIGHTS];
-
 
 	unsigned int spotLightCount = 0;
 	//linterna
@@ -709,13 +954,13 @@ int main()
 	spotLightCount++;
 
 	//luz fija
-	/*spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
+	spotLights[1] = SpotLight(0.0f, 0.0f, 1.0f,
 		1.0f, 2.0f,
 		5.0f, 10.0f, 0.0f,
 		0.0f, -5.0f, 0.0f,
 		1.0f, 0.0f, 0.0f,
 		15.0f);
-	spotLightCount++;*/
+	spotLightCount++;
 
 	//Para la lampara
 	PointLight lamparaON = pointLights[0];
@@ -726,9 +971,15 @@ int main()
 	glm::mat4 projection = glm::perspective(45.0f, (GLfloat)mainWindow.getBufferWidth() / mainWindow.getBufferHeight(), 0.1f, 1000.0f);
 
 	movCoche = 0.0f;
-	//Movimientos base para cada transformaciï¿½n de las puertas
+	movPerry = -163.0f;
+	//Movimientos base para cada transformación de las puertas
 	movOffset = 6.0f;
+	correrOffset = 0.1;
+	abrirPizzaOffset = 3.0f;
 	rotdeslizamientoOffset = 0.12f;
+	elevacionOffset = 0.01;
+	glm::vec3 posHotDog = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 posMostaza = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	glm::vec3 lowerLight(0.0f, 0.0f, 0.0f);
 
@@ -742,6 +993,71 @@ int main()
 	glm::vec3 cameraPosForShader;
 	glm::vec3 cameraDirForShader;
 
+	//---------PARA TENER KEYFRAMES GUARDADOS NO VOLATILES QUE SIEMPRE SE UTILIZARAN SE DECLARAN AQUÍ
+	KeyFrame[0].movHotDog_x = 0.0f;
+	KeyFrame[0].movHotDog_y = 1.0f;
+	KeyFrame[0].movHotDog_z = 0.0f;
+	KeyFrame[0].giroHotDog = 0;
+
+	KeyFrame[0].movMostaza_x = 0.43f;	//z
+	KeyFrame[0].movMostaza_y = 0.75f;	//y
+	KeyFrame[0].movMostaza_z = 0.5f;	//x
+	KeyFrame[0].giroMostaza = 0;
+
+	KeyFrame[1].movHotDog_x = 0.0f;
+	KeyFrame[1].movHotDog_y = 1.5f;
+	KeyFrame[1].movHotDog_z = 1.0f;
+	KeyFrame[1].giroHotDog = 0;
+
+	KeyFrame[1].movMostaza_x = 0.86f;	//z
+	KeyFrame[1].movMostaza_y = 1.5f;	//y
+	KeyFrame[1].movMostaza_z = 1.0f;	//x
+	KeyFrame[1].giroMostaza = 18;
+
+	KeyFrame[2].movHotDog_x = 0.0f;
+	KeyFrame[2].movHotDog_y = 2.0f;
+	KeyFrame[2].movHotDog_z = -1.0f;
+	KeyFrame[2].giroHotDog = 0.0f;
+
+	KeyFrame[2].movMostaza_x = 1.29f;	//z
+	KeyFrame[2].movMostaza_y = 2.25f;	//y
+	KeyFrame[2].movMostaza_z = 1.5f;	//x
+	KeyFrame[2].giroMostaza = 36.0f;
+
+
+	KeyFrame[3].movHotDog_x = 0.0f;
+	KeyFrame[3].movHotDog_y = 2.5f;
+	KeyFrame[3].movHotDog_z = 0.0f;
+	KeyFrame[3].giroHotDog = 0.0f;
+
+	KeyFrame[3].movMostaza_x = 1.72f;	//z
+	KeyFrame[3].movMostaza_y = 3.0f;	//y
+	KeyFrame[3].movMostaza_z = 2.0f;	//x
+	KeyFrame[3].giroMostaza = 54.0f;
+
+
+	KeyFrame[4].movHotDog_x = 0.0f;
+	KeyFrame[4].movHotDog_y = 2.5f;
+	KeyFrame[4].movHotDog_z = 0.0f;
+	KeyFrame[4].giroHotDog = 0.0f;
+
+	KeyFrame[4].movMostaza_x = 2.15f;	//z
+	KeyFrame[4].movMostaza_y = 3.75f;	//y
+	KeyFrame[4].movMostaza_z = 2.5f;	//x
+	KeyFrame[4].giroMostaza = 72.0f;
+
+	KeyFrame[5].movHotDog_x = 0.0f;
+	KeyFrame[5].movHotDog_y = 2.5f;
+	KeyFrame[5].movHotDog_z = 0.0f;
+	KeyFrame[5].giroHotDog = 0.0f;
+
+	KeyFrame[5].movMostaza_x = 2.6f;	// z
+	KeyFrame[5].movMostaza_y = 4.5f;	// y
+	KeyFrame[5].movMostaza_z = 3.0f;	// x
+	KeyFrame[5].giroMostaza = 90.0f;
+
+	printf("\nTeclas para uso de Keyframes:\n1.-Presionar barra espaciadora para reproducir animacion.\n2.-Presionar 0 para volver a habilitar reproduccion de la animacion\n");
+
 	////Loop mientras no se cierra la ventana
 	while (!mainWindow.getShouldClose())
 	{
@@ -754,13 +1070,13 @@ int main()
 
 		//dragonavance
 		dragonavance -= 0.1f * deltaTime;
-		/* Animaciï¿½n en Loop Se ejecuta de forma continua mientras la aplicaciï¿½n estï¿½ activa
-		Si la animaciï¿½n no es el loop, y se puede iniciar varias veces, el estado final y el estado inicial
+		/* Animación en Loop Se ejecuta de forma continua mientras la aplicación está activa
+		Si la animación no es el loop, y se puede iniciar varias veces, el estado final y el estado inicial
 		deben de ser el mismo, o agregar elementos para que no se vea que los modelos desaparecen
 		o aparecen de la nada.
 		*/
 
-		// Animaciï¿½n que se activa al presionar la tecla F, permite abrir o cerrar las puertas.
+		// Animación que se activa al presionar la tecla F, permite abrir o cerrar las puertas.
 		if (mainWindow.getAbrirCerrarPuerta())
 		{
 			if (rotacion > 0.0f)
@@ -779,7 +1095,61 @@ int main()
 			}
 		}
 
-		// Lï¿½gica de control de cï¿½mara con seguimiento
+
+		// Animación caja pizza
+		if (mainWindow.getPizza()) 
+		{
+			if (abrircaja > 0.0f) 
+			{
+				abrircaja -= abrirPizzaOffset * deltaTime;
+				elevacionRebanada -= elevacionOffset * deltaTime;
+			}
+		}
+		else
+		{
+			if (abrircaja < 90.0f)
+			{
+				abrircaja += abrirPizzaOffset * deltaTime;
+				elevacionRebanada += elevacionOffset * deltaTime;
+			}
+		}
+
+		//Animación Perry
+		if (Corre)
+		{
+			if (movPerry > -163) // -162.0
+			{
+				movPerry -= correrOffset * deltaTime;
+				elevarPuerta += 0.001 * deltaTime;
+				elevarPuerta2 -= 0.001 * deltaTime;
+			}
+			else
+			{
+				Corre = !Corre;
+				rotaPerry += 180.0f;
+				elevarPuerta += 0.001 * deltaTime;
+				elevarPuerta2 -= 0.001 * deltaTime;
+			}
+		}
+
+		else
+		{
+			if (movPerry < -136.0f) // -136.0
+			{
+				movPerry += correrOffset * deltaTime;
+				elevarPuerta -= 0.001 * deltaTime;
+				elevarPuerta2 += 0.001 * deltaTime;
+			}
+			else
+			{
+				Corre = !Corre;
+				rotaPerry -= 180.0f;
+				elevarPuerta -= 0.001 * deltaTime;
+				elevarPuerta2 += 0.001 * deltaTime;
+			}
+		}
+
+		// Lógica de control de cámara con seguimiento
 		//Recibir eventos del usuario
 		glfwPollEvents();
 		if (!mainWindow.getCamStatus())
@@ -788,18 +1158,30 @@ int main()
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		}
 
-		// Mover el cubo en un cï¿½rculo
-		float radius = 10.0f;
-		float speed = 0.5f;
-		ovniPos.x = centroPiramide.x + sin(now * velocidadOrbita) * radioOrbita;
-		ovniPos.z = centroPiramide.z + cos(now * velocidadOrbita) * radioOrbita;
-		ovniPos.y = alturaBaseOvni + sin(now * velocidadVertical) * amplitudVertical;
+		if (mainWindow.getCamStatus())
+		{
+			// Mover el cubo en un circulo
+			float radius = 10.0f;
+			float speed = 0.5f;
+			ovniPos.x = centroPiramide.x + sin(now * velocidadOrbita) * radioOrbita;
+			ovniPos.z = centroPiramide.z + cos(now * velocidadOrbita) * radioOrbita;
+			ovniPos.y = alturaBaseOvni + sin(now * velocidadVertical) * amplitudVertical;
+		}
+
+		//Recibir eventos del usuario
+		glfwPollEvents();
+		camera.keyControl(mainWindow.getsKeys(), deltaTime);
+		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
+
+		// Keyframes
+		inputKeyframes(mainWindow.getsKeys());
+		animate();
 
 		// Clear the window
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Lï¿½gica de Skybox
+		// Lógica de Skybox
 		skyboxDia.DrawSkybox(camera.calculateViewMatrix(), projection);
 
 		/*float tiempo = glfwGetTime();
@@ -846,13 +1228,13 @@ int main()
 		uniformColor = shaderList[0].getColorLocation();
 		uniformTextureOffset = shaderList[0].getOffsetLocation(); // para la textura con movimiento
 
-		//informaciï¿½n en el shader de intensidad especular y brillo
+		//información en el shader de intensidad especular y brillo
 		uniformSpecularIntensity = shaderList[0].GetSpecularIntensityLocation();
 		uniformShininess = shaderList[0].GetShininessLocation();
 
 
-		// Lï¿½gica de Matriz de Vista con seguimiento
-		// --- Lï¿½gica de Cï¿½mara de Seguimiento --------------------------------
+		// Lógica de Matriz de Vista con seguimiento
+		// --- Lógica de Cámara de Seguimiento --------------------------------
 		if (mainWindow.getCamStatus())
 		{
 			//se define el offset de la camara
@@ -865,7 +1247,7 @@ int main()
 		}
 		else
 		{
-			// En caso de acabar la animaciï¿½n seguir con el movimeinto normal de la camara
+			// En caso de acabar la animación seguir con el movimeinto normal de la camara
 			viewMatrix = camera.calculateViewMatrix();
 			cameraPosForShader = camera.getCameraPosition();
 			cameraDirForShader = camera.getCameraDirection();
@@ -874,13 +1256,12 @@ int main()
 		glUniformMatrix4fv(uniformProjection, 1, GL_FALSE, glm::value_ptr(projection));
 		glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 		glUniform3f(uniformEyePosition, cameraPosForShader.x, cameraPosForShader.y, cameraPosForShader.z);
-		// luz ligada a la cï¿½mara de tipo flash
+		// luz ligada a la cámara de tipo flash
 		lowerLight = cameraPosForShader;
 		lowerLight.y -= 0.3f;
 		spotLights[0].SetFlash(lowerLight, cameraDirForShader);
 		//------------------------------------------------------
 
-		//apagar y prender lampara
 		unsigned int activePointLightCount = 0;
 
 		if (mainWindow.getprendida())
@@ -893,10 +1274,9 @@ int main()
 
 		}
 
-
-		//informaciï¿½n al shader de fuentes de iluminaciï¿½n
+		//información al shader de fuentes de iluminación
 		shaderList[0].SetDirectionalLight(&mainLight);
-		shaderList[0].SetPointLights(activePointLights, activePointLightCount);
+		shaderList[0].SetPointLights(pointLights, pointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
 
@@ -967,6 +1347,8 @@ int main()
 			meshList[2]->RenderMesh();
 		}
 
+		// --- INICIO DE OBJETOS ---
+
 		//Atractivo turistico
 		for (int i = 0; i < 8; i++) {
 			model = glm::mat4(1.0);
@@ -980,8 +1362,7 @@ int main()
 			meshList[2]->RenderMesh();
 		}
 
-		// --- INICIO DE OBJETOS ---
-		//Piramide con jeraruquï¿½a -------------------------
+		//Piramide con jeraruquía -------------------------
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-80.0f, -1.5f, -25.0f));
 		modelaux = model;
@@ -1027,10 +1408,20 @@ int main()
 		VidrioOvniTexture.UseTexture();
 		VidrioOvni_M.RenderModel();
 
-
 		//Prueba del cubo
 		/*model = glm::mat4(1.0);
 		model = glm::translate(model, ovniPos);
+		modelaux = model;
+		//									x	  y		z
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Cubo_M.RenderModel();
+		Cubo_M.RenderModel();*/
+		// --- FIN DE OBJETOS ---
+
+
+		/*model = glm::mat4(1.0);
+		model = glm::translate(model, cubePosition);
 		modelaux = model;
 		//									x	  y		z							
 		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
@@ -1041,30 +1432,178 @@ int main()
 
 		// ----------------- NPCS -----------------
 
-		// ï¿½Baljeet
+		//  Baljeet
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-50.0f, 2.0f, -145.0f));
 		model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, -180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Baljeet.RenderModel();
+
+		// PERRY EL ORNITORRINCO
+
+		//posicion de perry dentro del arbol
+		//model = glm::translate(model, glm::vec3(-164.5f, -2.0f, -94.8f));
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(0.0f + movPerry, -2.0f, -94.6f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(rotaPerry), glm::vec3(0.0f, 1.0f, 0.0f));
+		//model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryTorso.RenderModel();
+
+		
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryPI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryPD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryMI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryMD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryS.RenderModel();
+
+		model = modelaux;
+		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PerryC.RenderModel();
+
+		// BUFFORD CHEF
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-180.0f, -1.5f, -65.0f));
+		model = glm::scale(model, glm::vec3(2.5f, 2.5f, 2.5f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(rotaPerry), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordTorso.RenderModel();
+
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordPI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordPD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordMI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordMD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordCabeza.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		BuffordChef.RenderModel();
+
+
+		// TYRONE BACKYARDIGANS
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-160.0f, -2.0f, -150.0));
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		//model = glm::rotate(model, glm::radians(rotaPerry), glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyroneTorso.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyronePI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyronePD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyroneMI.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyroneMD.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TyroneCabeza.RenderModel();
+
+
 
 		// ----------------- ENTORNO -----------------------
 
 		// ----------------- ZONA DE COMIDA ----------------- //
 
 
-		
+		//ARBOL
 
-		//Entre los olmecas Arboles
-		for (int i = 0; i < 2; i++) {
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-180.0f, -2.0f, -106.5f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -35 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ArbolS.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CopaArbolS.RenderModel();
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, -0.6f + elevarPuerta));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		EntradaArbolS.RenderModel();
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-120.0f, -2.0f, -82.5f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 145 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		ArbolS.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CopaArbolS.RenderModel();
+
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f + elevarPuerta2));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		EntradaArbolS.RenderModel();
+
+		/*for (int i = 0; i < 2; i++) {
 			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(-140.0f + (i * 30), -2.0f, -110.0f));
+			model = glm::translate(model, glm::vec3(-175.0f + (i * 30), -2.0f, -75.0f));
 			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+			model = glm::rotate(model, 45 * (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
 			modelaux = model;
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1074,10 +1613,10 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			CopaArbolS.RenderModel();
 
-			model = modelaux;
+			/*model = modelaux;
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			EntradaArbolS.RenderModel();
-		}
+		}*/
 
 
 		//MESA PICNIC 1, derecha
@@ -1153,7 +1692,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Fuente.RenderModel();
 
-		//BAï¿½O
+		//BAÑO
 		for (int i = 0; i < 3; i++) {
 			model = glm::mat4(1.0);
 			model = glm::translate(model, glm::vec3(-170.0f, -1.6f, -120.0f + (i * 7.5f)));
@@ -1173,28 +1712,7 @@ int main()
 			PuertaBano.RenderModel();
 		}
 
-		//-------------------------------- Conjunto 1 ---------------------------------
-		//ARBOL
-		for (int i = 0; i < 2; i++) {
-			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(-175.0f + (i * 30), -2.0f, -75.0f));
-			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::rotate(model, 45 + (i * 2) * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
-			modelaux = model;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			ArbolS.RenderModel();
-
-			model = modelaux;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			CopaArbolS.RenderModel();
-
-			model = modelaux;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			EntradaArbolS.RenderModel();
-		}
-
-		//Banco 1
+		//Banco 
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-125.0f, -0.5f, -95.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -1203,6 +1721,7 @@ int main()
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		BancoMadera.RenderModel();
+
 		//Patas de banca
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1229,6 +1748,7 @@ int main()
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		BancoMadera.RenderModel();
+
 		//Patas de banca
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1238,6 +1758,8 @@ int main()
 		for (int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0);
 			model = glm::translate(model, glm::vec3(-130.0f + (i * 10), -0.8f, -95.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+			//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			Arbusto.RenderModel();
@@ -1247,7 +1769,7 @@ int main()
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-110.0f, -2.0f, -80.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, 45  * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, 45 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(8.0f, 8.0f, 8.0f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1317,6 +1839,7 @@ int main()
 			Arbusto.RenderModel();
 		}
 
+
 		//Bancos 3
 		for (int i = 0; i < 2; i++)
 		{
@@ -1335,7 +1858,6 @@ int main()
 		}
 
 		//-------------------------------- Termino Conjunto 2 ---------------------------------
-
 		//-------------------------------- Conjunto 3 ---------------------------------
 		//ARBOL 3
 		for (int i = 0; i < 8; i++) {
@@ -1384,7 +1906,7 @@ int main()
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 				BancoPatas.RenderModel();
 			}
-			
+
 		}
 
 		//Arbusto 4
@@ -1414,11 +1936,10 @@ int main()
 				glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 				BancoPatas.RenderModel();
 			}
-			
+
 		}
 
 		//-------------------------------- Termino Conjunto 3 ---------------------------------
-
 		//-------------------------------- Conjunto 4 ---------------------------------
 		//ARBOL 5
 		for (int i = 0; i < 12; i++) {
@@ -1439,8 +1960,7 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			EntradaArbolS.RenderModel();
 		}
-
-		//Valla
+		
 		for (int i = 0; i < 34; i++)
 		{
 			model = glm::mat4(1.0);
@@ -1511,6 +2031,7 @@ int main()
 		}
 		//--------------------------------------------------------------------
 
+
 		// Carrito de hotdogs //
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-170.0f, -1.6f, -85.0f));
@@ -1527,18 +2048,28 @@ int main()
 
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TapaHotDogs.RenderModel();
+
+		model = glm::mat4(1.0);
+		posMostaza = glm::vec3(posXMostaza + movMostaza_x, posYMostaza + movMostaza_y, posZMostaza + movMostaza_z);
+		model = glm::translate(model, posMostaza);
+		//model = glm::translate(model, glm::vec3(-170.0f, 1.2f, -85.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -(giroMostaza * toRadians), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Mostaza.RenderModel();
 
-		model = modelaux;
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		TapaHotDogs.RenderModel();
+		
 
 
 		//HOTDOG
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-170.0f, 1.2f, -85.0f));
+		posHotDog = glm::vec3(posXHotDog + movHotDog_x, posYHotDog + movHotDog_y, posZHotDog + movHotDog_z);
+		model = glm::translate(model, posHotDog);
+		//model = glm::translate(model, glm::vec3(-170.0f, 1.2f, -85.0f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, giroHotDog * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1562,27 +2093,47 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		MaderaPuesto.RenderModel();
 
+
 		// Pizza
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-177.0f, 2.6f, -62.5f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CajaPizza.RenderModel();
 
-		for (int i = 0; i < 2; i++) {
-			model = glm::mat4(1.0);
-			model = glm::translate(model, glm::vec3(-177.0f, 2.6f, -62.5f /* - (i - 10)*/));
-			model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-			model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
-			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-			modelaux = model;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			CajaPizza.RenderModel();
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Pizza.RenderModel();
 
-			model = modelaux;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			Pizza.RenderModel();
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f + elevacionRebanada));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		RebanadaPizza.RenderModel();
 
-			model = modelaux;
-			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-			TapaCajaPizza.RenderModel();
-		}
+		//Plato
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(-1.8f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		Plato.RenderModel();
 
+		
+		/*model = glm::translate(model, glm::vec3(-1.0f, -0.5f, -0.0f));
+		model = glm::rotate(model, -30 - abrircaja * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));*/
+		model = glm::mat4(1.0);
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		model = glm::translate(model, glm::vec3(-177.3f, 2.48f, -62.65f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, abrircaja * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TapaCajaPizza.RenderModel();
+
+		
+		
 
 
 		//----------------- RING DE BOXEO -----------------
@@ -1592,7 +2143,7 @@ int main()
 		model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));
 		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//Siento que se puede reducir pero la neta asï¿½ salio y ya no le quiero mover jajaja
+		//Siento que se puede reducir pero la neta así salio y ya no le quiero mover jajaja
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Ring_R.RenderModel();
@@ -1605,7 +2156,7 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Escaleras_R.RenderModel();
 
-		//Sillas derecha
+		//Sillas derecha 
 		for (int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0);
 			model = glm::translate(model, glm::vec3(-30.0f, 1.1f, -136.5f - (i * 5)));
@@ -1615,7 +2166,7 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			SillaCC.RenderModel();
 		}
-
+		
 		//Sillas Izquierda
 		for (int i = 0; i < 4; i++) {
 			model = glm::mat4(1.0);
@@ -1638,7 +2189,6 @@ int main()
 			glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 			SillaCC.RenderModel();
 		}
-
 
 		// ------------------ Estructura columpios ----------------------
 
@@ -1701,6 +2251,7 @@ int main()
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		BancoMadera.RenderModel();
+
 		//Patas de banca
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1715,6 +2266,7 @@ int main()
 		modelaux = model;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		BancoMadera.RenderModel();
+
 		//Patas de banca
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1722,7 +2274,7 @@ int main()
 
 		//---------------- Cabeza olmeca ----------------
 		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-113.0f, -1.8f, -135.0f));
+		model = glm::translate(model, glm::vec3(-100.0f, -1.8f, -135.0f));
 		model = glm::scale(model, glm::vec3(0.15f, 0.15f, 0.15f));
 		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -1745,7 +2297,6 @@ int main()
 		model = modelaux;
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		EntradaArbolS.RenderModel();
-
 
 		//----------------- Luces / Lamparas -----------------
 		//Lampara 1
@@ -1844,7 +2395,7 @@ int main()
 
 		//----------------- Puerta JOSHUA --------------------
 
-		//Definiciï¿½n del arco de la puerta
+		//Definición del arco de la puerta
 		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(-140.0f, -1.8f, -140.0f));
 		model = glm::rotate(model, -180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1853,16 +2404,14 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Arco.RenderModel();
 
-		//Definiciï¿½n del cartel de la puerta
+		//Definición del cartel de la puerta
 		model = modelaux;
-		//model = glm::translate(model, glm::vec3(0.0f, -1.8f, -15.0f));
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(10.0f, 3.84f, 0.58f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		CartelPuerta.RenderModel();
 
-		//Definiciï¿½n de la puerta izquierda, ABRE
-		//Jerarquï¿½a
+		//Definición de la puerta izquierda, ABRE
+		//Jerarquía
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(-4.214f, -0.0f, 0.0f));
 		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -1872,8 +2421,8 @@ int main()
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaIzq.RenderModel();
 
-		//Definiciï¿½n de la puerta derecha, DESLIZA
-		//Jerarquï¿½a
+		//Definición de la puerta derecha, DESLIZA
+		//Jerarquía
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(4.5f, 0.082f, 0.0f));
 		model = glm::translate(model, glm::vec3(0.0f + deslizamiento, 0.0f, 0.0f)); // ABRE Y CIERRA CON F
@@ -1885,8 +2434,8 @@ int main()
 
 		/*color = glm::vec3(1.0f, 1.0f, 1.0f);
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));*/
-		//Agave ï¿½quï¿½ sucede si lo renderizan antes del coche y de la pista?
-		/*model = glm::mat4(1.0);
+		//Agave ¿qué sucede si lo renderizan antes del coche y de la pista?
+		model = glm::mat4(1.0);
 		model = glm::translate(model, glm::vec3(0.0f, 0.5f, -2.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1895,7 +2444,7 @@ int main()
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		AgaveTexture.UseTexture();
 		Material_opaco.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[3]->RenderMesh();*/
+		meshList[3]->RenderMesh();
 
 		//----------------- Puerta ENRIQUE --------------------
 
@@ -1906,32 +2455,20 @@ int main()
 		modelaux = model;
 		// 								//x    y      z							
 		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
-
-		//model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaTexture.UseTexture();
 		Arco_M.RenderModel();
 
 		//Puerta izquierda
 		model = modelaux;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.0f));
-		//Abrir por rotaciï¿½n 
-		//model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(mainWindow.getarticulacion1()), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
-		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//model = glm::scale(model, glm::vec3(1.0f, 10.0f, 5.0f));
-		//model = glm::scale(model, glm::vec3(5.0f, 10.0f, 1.0f));
 
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		PuertaIzq_M.RenderModel();
 
 		//Puerta Derecha
 		model = modelaux;
-		//model = glm::translate(model, glm::vec3(0.0f, 0.0f, 20.5f));
-		//model = glm::scale(model, glm::vec3(1.0f, 10.0f, 5.0f));
-		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
-		//Abrir por desplazamiento
 		model = glm::translate(model, glm::vec3(-2.0f + mainWindow.getmuevex(), 0.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(2.0f, 6.5, 0.8f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
@@ -1941,14 +2478,12 @@ int main()
 		model = modelaux;
 		model = glm::translate(model, glm::vec3(-0.5f, 0.0f, -3.0f));//20.5f));
 		model = glm::scale(model, glm::vec3(2.0f, 6.8f, 0.2f));
-		//model = glm::scale(model, glm::vec3(0.5f, 10.0f, 5.0f));
-		//model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
 		Cartel_M.RenderModel();
 
 		//Desplazamiento cartel.
 
-		toffsetnumerocambiau += 0.0005; // Solo se baja el nï¿½mero de offset de cada nï¿½mero 
+		toffsetnumerocambiau += 0.0005; // Solo se baja el número de offset de cada número 
 		if (toffsetnumerocambiau > 1.0)
 			toffsetnumerocambiau = 0.0;
 		toffsetnumerov = 0.0;
@@ -1968,36 +2503,9 @@ int main()
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[4]->RenderMesh();
 
-
-		//textura con movimiento
-		//Importantes porque la variable uniform no podemos modificarla directamente
-		/*toffsetflechau += 0.001;
-		toffsetflechav = 0.00;
-		//para que no se desborde la variable
-		if (toffsetflechau > 1.0)
-			toffsetflechau = 0.0;
-		//if (toffsetv > 1.0)
-		//	toffsetv = 0;
-		//printf("\ntfosset %f \n", toffsetu);
-		//pasar a la variable uniform el valor actualizado
-		toffset = glm::vec2(toffsetflechau, toffsetflechav);
-
-		model = glm::mat4(1.0);
-		model = glm::translate(model, glm::vec3(-2.0f, 1.0f, -6.0f));
-		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(3.0f, 3.0f, 3.0f));
-		glUniform2fv(uniformTextureOffset, 1, glm::value_ptr(toffset));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		color = glm::vec3(1.0f, 0.0f, 0.0f);
-		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
-		FlechaTexture.UseTexture();
-		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[4]->RenderMesh();*/
-
-
 		//Movimiento sobre la textura del texto PROYECTO CGEIHC 
 		/*
-		ï¿½Cï¿½mo hacer para que sea a una velocidad visible?
+		¿Cómo hacer para que sea a una velocidad visible?
 		*/
 		toffsetnumerocambiau += 0.0005;
 		if (toffsetnumerocambiau > 1.0)
@@ -2016,7 +2524,8 @@ int main()
 		glUniform3fv(uniformColor, 1, glm::value_ptr(color));
 		TipografiaBackyardigans.UseTexture();
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
-		meshList[7]->RenderMesh();
+		meshList[4]->RenderMesh();
+
 
 		Material_brillante.UseMaterial(uniformSpecularIntensity, uniformShininess);
 		meshList[5]->RenderMesh();
@@ -2029,4 +2538,43 @@ int main()
 	}
 
 	return 0;
+}
+
+//KEYFRAMES, INICIAR REINICIAR ANIMACION
+
+void inputKeyframes(bool* keys)
+{
+	if (keys[GLFW_KEY_SPACE])
+	{
+		if (reproduciranimacion < 1)
+		{
+			if (play == false && (FrameIndex > 1))
+			{
+				resetElements();
+				//First Interpolation				
+				interpolation();
+				play = true;
+				playIndex = 0;
+				i_curr_steps = 0;
+				reproduciranimacion++;
+				printf("\n presiona 0 para habilitar reproducir de nuevo la animación'\n");
+				habilitaranimacion = 0;
+
+			}
+			else
+			{
+				play = false;
+
+			}
+		}
+	}
+	if (keys[GLFW_KEY_0])
+	{
+		if (habilitaranimacion < 1 && reproduciranimacion>0)
+		{
+			printf("Ya puedes reproducir de nuevo la animación con la tecla de barra espaciadora'\n");
+			reproduciranimacion = 0;
+
+		}
+	}
 }

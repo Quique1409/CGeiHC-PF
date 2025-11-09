@@ -28,6 +28,9 @@ public:
 	//UFO
 	GLboolean getprendidaUFO() { return UFOPrendido; }
 
+	//Iniciar animación pizza
+	GLboolean getPizza() { return Pizza; }
+
 	bool getShouldClose() {
 		return  glfwWindowShouldClose(mainWindow);
 	}
@@ -38,6 +41,7 @@ public:
 	bool getCamStatus() { return followCamState; }
 
 	~Window();
+	
 private:
 	GLFWwindow* mainWindow;
 	GLint width, height;
@@ -61,6 +65,9 @@ private:
 	// Práctica 9.3. Abrir o cerrar puertas
 	GLfloat muevey;
 	GLboolean abrirCerrarPuerta;
+
+	//Animación pizza
+	GLboolean Pizza;
 	bool mouseFirstMoved;
 	static void ManejaTeclado(GLFWwindow* window, int key, int code, int action, int mode);
 	static void ManejaMouse(GLFWwindow* window, double xPos, double yPos);

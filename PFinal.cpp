@@ -131,6 +131,21 @@ Texture LetreroTexture;
 //Letrero para interacciones
 Texture LetreroInteracciones;
 
+//casa Duff
+Texture TorreDuffTexture;
+Texture TechoDuffTexture;
+Texture CartelDuffTexture;
+
+//Casa Tyrone
+Texture CasaTyroneTexture;
+
+Texture pabloCuerpotexture;
+Texture pabloGorrotexture;
+
+//Duff
+Texture DoofTexture;
+
+
 // ----------------- NPCS ----------------- //
 Model Baljeet;
 Model PerryTorso;
@@ -155,6 +170,16 @@ Model TyroneMI;
 Model TyroneMD;
 Model TyronePD;
 Model TyronePI;
+
+Model PaloBD_M;
+Model PablloBI_M;
+Model PabloPieDer_M;
+Model PabloPieizq_M;
+Model PabloSombrero_M;
+Model PabloTorso_M;
+
+//Duff
+Model DuffCuerpo_M;
 
 // ---------------- ENTORNO ----------------- //
 // Modelos de la puerta Joshua
@@ -252,6 +277,19 @@ Model Serpientes_M;
 //Ovni
 Model Ovni_M;
 Model VidrioOvni_M;
+
+//Juego de pelota
+Model BaseJP_M;
+Model Humano_M;
+Model Pelota_M;
+
+
+//Casas
+//Tyrone
+Model Casatyrone_M;
+Model TorreDuff_M;
+Model TechoDuff_M;
+Model CartelDuff_M;
 
 
 //Skyboxes
@@ -663,6 +701,28 @@ int main()
 	lampNJoshuaTexture = Texture("Textures/imagenNegra.png");
 	lampNJoshuaTexture.LoadTextureA();
 
+	//Casa Duff
+	TorreDuffTexture = Texture("Textures/Map #1.png");
+	TorreDuffTexture.LoadTextureA();
+	TechoDuffTexture = Texture("Textures/Map #3.png");
+	TechoDuffTexture.LoadTextureA();
+	CartelDuffTexture = Texture("Textures/Map #6.png");
+	CartelDuffTexture.LoadTextureA();
+
+	//CAsa tyrone
+	CasaTyroneTexture = Texture("Textures/20240506_091241.jpg");
+	CasaTyroneTexture.LoadTextureA();
+
+	//Textura pablo
+	pabloCuerpotexture = Texture("Textures/pabloCuerpo.png");
+	pabloCuerpotexture.LoadTextureA();
+	pabloGorrotexture = Texture("Textures/PabloGorrito.png");
+	pabloGorrotexture.LoadTextureA();
+
+	//Duff
+	DoofTexture = Texture("Textures/doof.png");
+	DoofTexture.LoadTextureA();
+
 	// ----------------- NPCS -----------------
 
 	Baljeet = Model();
@@ -712,6 +772,28 @@ int main()
 	TyronePD.LoadModel("Models/NPCS/Tyrone/TyronePD.obj");
 	TyronePI = Model();
 	TyronePI.LoadModel("Models/NPCS/Tyrone/TyronePI.obj");
+
+	//Pablo
+	PaloBD_M = Model();
+	PaloBD_M.LoadModel("Models/NPCS/Pablo/PabloBrazoDer.obj");
+	PablloBI_M = Model();
+	PablloBI_M.LoadModel("Models/NPCS/Pablo/PabloBrazoIzq.obj");
+	PabloPieDer_M = Model();
+	PabloPieDer_M.LoadModel("Models/NPCS/Pablo/PabloPieDer.obj");
+	PabloPieizq_M = Model();
+	PabloPieizq_M.LoadModel("Models/NPCS/Pablo/PabloPieIzq.obj");
+	PabloSombrero_M = Model();
+	PabloSombrero_M.LoadModel("Models/NPCS/Pablo/SombreroPablo.obj");
+	PabloTorso_M = Model();
+	PabloTorso_M.LoadModel("Models/NPCS/Pablo/TorsoPablo.obj");
+
+
+	//Doof
+	DuffCuerpo_M = Model();
+	DuffCuerpo_M.LoadModel("Models/NPCS/Doof/Doof.obj");
+
+
+
 	// ----------------- ENTORNO ------------------ 
 
 	// Cabeza Olmeca
@@ -855,6 +937,29 @@ int main()
 	Ovni_M.LoadModel("Models/BaseUFO.obj");
 	VidrioOvni_M = Model();
 	VidrioOvni_M.LoadModel("Models/VidrioUFO.obj");
+
+	//Juego de Pelota
+	BaseJP_M = Model();
+	BaseJP_M.LoadModel("Models/BaseJP.obj");
+	Humano_M = Model();
+	Humano_M.LoadModel("Models/Humano.obj");
+	Pelota_M = Model();
+	Pelota_M.LoadModel("Models/Pelota.obj");
+
+
+	//Casaaaaaas
+	//Tyrone
+	Casatyrone_M = Model();
+	Casatyrone_M.LoadModel("Models/low poly house 3.obj");
+
+	//Duff
+	TorreDuff_M = Model();
+	TorreDuff_M.LoadModel("Models/TorreDuf.dae");
+	TechoDuff_M = Model();
+	TechoDuff_M.LoadModel("Models/TechoDuff.dae");
+	CartelDuff_M = Model();
+	CartelDuff_M.LoadModel("Models/CartelDuff.dae");
+
 
 	//Seguimiento de camara prueba Quique
 	Cubo_M = Model();
@@ -1151,27 +1256,18 @@ int main()
 
 		// Lógica de control de cámara con seguimiento
 		//Recibir eventos del usuario
+
+		//Mover al ovni
+		ovniPos.x = centroPiramide.x + sin(now * velocidadOrbita) * radioOrbita;
+		ovniPos.z = centroPiramide.z + cos(now * velocidadOrbita) * radioOrbita;
+		ovniPos.y = alturaBaseOvni + sin(now * velocidadVertical) * amplitudVertical;
+
 		glfwPollEvents();
 		if (!mainWindow.getCamStatus())
 		{
 			camera.keyControl(mainWindow.getsKeys(), deltaTime);
 			camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 		}
-
-		if (mainWindow.getCamStatus())
-		{
-			// Mover el cubo en un circulo
-			float radius = 10.0f;
-			float speed = 0.5f;
-			ovniPos.x = centroPiramide.x + sin(now * velocidadOrbita) * radioOrbita;
-			ovniPos.z = centroPiramide.z + cos(now * velocidadOrbita) * radioOrbita;
-			ovniPos.y = alturaBaseOvni + sin(now * velocidadVertical) * amplitudVertical;
-		}
-
-		//Recibir eventos del usuario
-		glfwPollEvents();
-		camera.keyControl(mainWindow.getsKeys(), deltaTime);
-		camera.mouseControl(mainWindow.getXChange(), mainWindow.getYChange());
 
 		// Keyframes
 		inputKeyframes(mainWindow.getsKeys());
@@ -1184,7 +1280,7 @@ int main()
 		// Lógica de Skybox
 		skyboxDia.DrawSkybox(camera.calculateViewMatrix(), projection);
 
-		/*float tiempo = glfwGetTime();
+		float tiempo = glfwGetTime();
 		float ciclo = (sin(tiempo * 0.08f) + 1.0f) / 2.0f; // oscila entre 0 y 1
 
 		glm::vec3 colorDia(1.0f, 0.95f, 0.8f);
@@ -1211,13 +1307,13 @@ int main()
 		}
 		else {
 			skyboxAMAT.DrawSkybox(camera.calculateViewMatrix(), projection);
-		}*/
+		}
 
-		/*mainLight = DirectionalLight(
+		mainLight = DirectionalLight(
 			colorActual.r, colorActual.g, colorActual.b,
 			intensidadAmb, intensidadDif,
 			direccionLuz.x, direccionLuz.y, direccionLuz.z
-		);*/
+		);
 
 
 		shaderList[0].UseShader();
@@ -1276,7 +1372,7 @@ int main()
 
 		//información al shader de fuentes de iluminación
 		shaderList[0].SetDirectionalLight(&mainLight);
-		shaderList[0].SetPointLights(pointLights, pointLightCount);
+		shaderList[0].SetPointLights(activePointLights, activePointLightCount);
 		shaderList[0].SetSpotLights(spotLights, spotLightCount);
 
 
@@ -1408,27 +1504,6 @@ int main()
 		VidrioOvniTexture.UseTexture();
 		VidrioOvni_M.RenderModel();
 
-		//Prueba del cubo
-		/*model = glm::mat4(1.0);
-		model = glm::translate(model, ovniPos);
-		modelaux = model;
-		//									x	  y		z
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Cubo_M.RenderModel();
-		Cubo_M.RenderModel();*/
-		// --- FIN DE OBJETOS ---
-
-
-		/*model = glm::mat4(1.0);
-		model = glm::translate(model, cubePosition);
-		modelaux = model;
-		//									x	  y		z							
-		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-		Cubo_M.RenderModel();*/
-		// --- FIN DE OBJETOS ---
-
 
 		// ----------------- NPCS -----------------
 
@@ -1555,6 +1630,50 @@ int main()
 		TyroneCabeza.RenderModel();
 
 
+
+		//pablo
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-80.0f, 28.0f, -25.0f));
+		model = glm::scale(model, glm::vec3(2.0f, 2.0f, 2.0f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PabloTorso_M.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PabloPieizq_M.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PabloPieDer_M.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PablloBI_M.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PaloBD_M.RenderModel();
+
+		model = modelaux;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		PabloSombrero_M.RenderModel();
+
+
+		//Doof
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-180.0f, -2.0f, -240.0));
+		model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+		model = glm::rotate(model, -270 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		DoofTexture.UseTexture();
+		DuffCuerpo_M.RenderModel();
 
 		// ----------------- ENTORNO -----------------------
 
@@ -2030,6 +2149,70 @@ int main()
 			Valla.RenderModel();
 		}
 		//--------------------------------------------------------------------
+
+		//------------------ Juego de Pelota --------------------------------
+
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-20.0f, -10.0f, 150.0f));
+		model = glm::rotate(model, -180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 180 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		//SerpTexture.UseTexture();
+		//BaseJP_M.RenderModel();
+
+
+		//----------------------------------------------------------------------
+
+		//-----------------------------Casas ------------------------------------
+
+		//Casa de Tyrone
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-200.0f, -1.8f, -180.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(15.0f, 15.0f, 15.0f));
+		modelaux = model;
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CasaTyroneTexture.UseTexture();
+		Casatyrone_M.RenderModel();
+
+
+		//Duff
+		model = glm::mat4(1.0);
+		model = glm::translate(model, glm::vec3(-200.0f, 7.0f, -240.0f));
+		modelaux = model;
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TorreDuffTexture.UseTexture();
+		TorreDuff_M.RenderModel();
+
+		//Cupula de piramide
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 37.0f, -7.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		TechoDuffTexture.UseTexture();
+		TechoDuff_M.RenderModel();
+
+		//Cupula de piramide
+		model = modelaux;
+		model = glm::translate(model, glm::vec3(0.0f, 30.0f, 7.0f));
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
+		model = glm::rotate(model, -90 * toRadians, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::rotate(model, 90 * toRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
+		CartelDuffTexture.UseTexture();
+		CartelDuff_M.RenderModel();
+
+		//-----------------------------------------------------------------------
 
 
 		// Carrito de hotdogs //
